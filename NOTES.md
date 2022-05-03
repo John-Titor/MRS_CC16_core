@@ -11,11 +11,185 @@ Defines:    BOARD_PINOUT_CONFIG=2
 
 EEPROM range 0-0x7ff is reserved by MRS; user data should only occupy 0x800-0xfff.
 
-
-## Pin open issues
+## Open issues
 
  - Function of DI_AI_VARIANTE (no description in IDE)
+ - Initial vector table - are stack / entrypoint set?
 
+## Memory Map
+
+Base            Size            Function
+-----------------------------------------
+0x0000_0000     0x0001_0000     Boot ROM
+0x0001_0000     0x0000_1000     Application header
+0x0001_1000     0x0000_0400     Interrupt vectors (initial)
+0x0001_1400     0x0000_0010     Flash configuration
+0x0001_1410     0x0006_bbf0     Application program
+
+### Application header
+
+````
+typedef struct
+{
+    uint32_t header_key;          default 0x12345678
+    uint32_t header_crc;          crc32 from 0x10008-0x10fff
+    uint32_t app_header_version;  default 1
+    uint32_t application_crc;     crc32 from 0x11000 of application_length
+    uint32_t application_length;  app length (multiple of 256)
+    uint8_t sw_version[32];       default "NO PROG"
+    uint8_t reserve[460];         zeros
+    uint8_t signature_key[512];   zeros
+} struct_hal_sys_app_header_t;
+````
+
+### Flash configuration
+
+````
+.section .FlashConfig, "a"
+.long 0xFFFFFFFF     /* 8 bytes backdoor comparison key           */
+.long 0xFFFFFFFF     /*                                           */
+.long 0xFFFFFFFF     /* 4 bytes program flash protection bytes    */
+.long 0xFFFF7FFE     /* FDPROT:FEPROT:FOPT:FSEC(0xFE = unsecured) */
+````
+
+## Bootloader config
+
+### Clocking
+
+See S32K144 reference manual, fig 27-1 for specific clock routing and names.
+
+The bootloader launches the application with clocking configured:
+
+clock           frequency
+--------------------------
+FIRC_CLK        48MHz
+FIRCDIV1_CLK    disabled
+FIRCDIV2_CLK    disabled
+SIRC_CLK        8MHz
+SIRCDIV1_CLK    disabled
+SIRCDIV2_CLK    disabled
+SOSCK_CLK       16MHz
+SOSCDIV1_CLK    8MHz
+SOSCDIV2_CLK    8MHz
+SPLL_CLK        160MHz
+CORE_CLK        80MHz
+SYS_CLK         80MHz
+BUS_CLK         40MHz
+FLASH_CLK       26.6MHz
+SCG_SLOW_CLK    26.6MHz
+SPLLDIV1_CLK    80MHz
+SPLLDIV2_CLK    40MHz
+CLKOUT          ?
+LPO_CLK         ?
+RTC_CLK         ?
+
+### Peripheral configuration
+
+#### Clocking
+
+The bootloader leaves most peripherals off; only the following are clocked on at
+app start:
+
+clock           device
+-----------------------
+FTFC            flash memory
+FlexCAN0        CAN0
+PORTA           JTAG and CAN PHY control pins
+PORTE           CAN and CAN PHY control pins
+
+#### Pin config
+
+Only JTAG and CAN-related pins are configured by the bootloader.
+
+pin         function
+---------------------
+A_04        SWD_DIO
+A_05        RESET_b
+A_10        TRACE_SWO
+A_11        CAN_EN1
+
+E_01        CAN_STB1
+E_04        CAN0_RX
+E_05        CAN0_TX
+
+#### CAN config
+
+##### Bootloader CAN register dump
+
+Bootloader configured on CAN0 at 500kbps
+
+MCR             88130803
+    MDIS = 1        Module disabled
+    NOTRDY = 1      Module not ready
+    ...
+
+CTRL1           096d6002
+    ignored, see CBT (due to CBT.BTF=1)
+
+TIMER           00008e82
+RXMGMASK        1fffffff
+RX14MASK        1fffffff
+RX15MASK        1fffffff
+ECR             00000000
+ESR1            00000000
+IMASK1          00000007
+IFLAG1          00000004
+CTRL2           00a01000
+ESR2            00036000
+CRCR            00026c9a
+RXFGMASK        ffffffff
+RXFIR           406363bb
+CBT             812508a5
+    BTF = 1         Using these values
+    EPRESDIV = 0x33 /52
+    ERJW = 5
+    EPROPSEG = 2
+    EPSEG1 = 5
+    EPSEG2 = 5
+
+CTRL1_PN        00000100
+CTRL2_PN        00000000
+WU_MTC          00000000
+FLT_ID1         00000000
+FLT_DLC         00000008
+PL1_LO          00000000
+PL1_HI          00000000
+FLT_ID2_IDMASK  00000000
+PL2_PLMASK_LO   00000000
+PL2_PLMASK_HI   00000000
+FDCTRL          80030100
+FDCBT           009604c6
+FDCRC           02006c9a
+
+MCR             88130803 0002100f !
+CTRL1           096d6002 01614007 !
+TIMER           00008e82 00003648 !
+RXMGMASK        1fffffff ffffffff !
+RX14MASK        1fffffff ffffffff !
+RX15MASK        1fffffff ffffffff !
+ECR             00000000 00000000
+ESR1            00000000 00040080 !
+IMASK1          00000007 00000002 !
+IFLAG1          00000004 00000000 !
+CTRL2           00a01000 00a00000 !
+ESR2            00036000 00026000 !
+CRCR            00026c9a 00006d5a !
+RXFGMASK        ffffffff ffffffff
+RXFIR           406363bb 406363bb
+CBT             812508a5 00251c81 !
+CTRL1_PN        00000100 00000100
+CTRL2_PN        00000000 00000000
+WU_MTC          00000000 00000000
+FLT_ID1         00000000 00000000
+FLT_DLC         00000008 00000008
+PL1_LO          00000000 00000000
+PL1_HI          00000000 00000000
+FLT_ID2_IDMASK  00000000 00000000
+PL2_PLMASK_LO   00000000 00000000
+PL2_PLMASK_HI   00000000 00000000
+FDCTRL          80030100 80030000 !
+FDCBT           009604c6 009604c6
+FDCRC           02006c9a 000051d5 !
 
 ## Pin mapping by function
 
@@ -77,7 +251,7 @@ DO_VREF_EN              D_10        LM34919 SHUTDOWN
 DI_PGD                  A_17        VRef power good signal
 DCDC_8V5                V_00        LM34919 FB control
 DCDC_10V                V_01        LM34919 FB control
-DI_AI_VREF              D_03        14444mV full-scale
+DI_AI_VREF              D_03        ADC1/3, 14444mV full-scale
 
 ### CAN/LIN/Serial interfaces and transciever controls
 
@@ -107,14 +281,14 @@ MC_SCI_TXD              A_09 (3)    LIN/RS232 xcvr TXD
 
 #### Inputs IN0-IN5
 
-Assignment              Port_Pin    Full-scale           
------------------------------------------------
-DI_AI_A_IN0             B_01        16920mV / 32250mV
-DI_AI_A_IN1             B_00        16920mV / 32250mV
-DI_AI_A_IN2             A_07        16920mV / 32250mV
-DI_AI_A_IN3             A_06        16920mV / 32250mV
-DI_AI_A_IN4             B_16        16920mV / 32250mV
-DI_AI_A_IN5             B_15        16920mV / 32250mV
+Assignment              Port_Pin  ADC       Full-scale           
+-------------------------------------------------------
+DI_AI_A_IN0             B_01      0/5       16920mV / 32250mV
+DI_AI_A_IN1             B_00      0/4       16920mV / 32250mV
+DI_AI_A_IN2             A_07      0/3       16920mV / 32250mV
+DI_AI_A_IN3             A_06      0/2       16920mV / 32250mV
+DI_AI_A_IN4             B_16      1/15      16920mV / 32250mV
+DI_AI_A_IN5             B_15      1/14      16920mV / 32250mV
 
 #### Controls IN0-IN5
 
@@ -141,12 +315,12 @@ DO_RS5                  B_17         "
 
 #### Misc analog inputs
 
-Assignment              Port_Pin    Full-scale  Function
---------------------------------------------------------
-DI_AI_ID                C_07        16920mV     analog input or ID pin
-DI_AI_KL30_1            C_02 (1)    39000mv     pin A1 KL30 sense
-DI_AI_KL30_2            C_03 (1)    39000mv     pin A8 KL30 sense
-DI_AI_VARIANTE          C_06        5000mV      ???
+Assignment              Port_Pin    ADC       Full-scale  Function
+-------------------------------------------------------------------
+DI_AI_ID                C_07        1/5       16920mV     analog input or ID pin
+DI_AI_KL30_1            C_02 (1)    0/10      39000mv     pin A1 KL30 sense
+DI_AI_KL30_2            C_03 (1)    0/11      39000mv     pin A8 KL30 sense
+DI_AI_VARIANTE          C_06        1/4       5000mV      ???
 
 (1) Only connected when DO_POWER is 1.
 
@@ -202,28 +376,28 @@ Despite the differing table types, only the first 3 points in either table type
 is used. Presumably this design would support an H-bridge driver arrangement, but
 for the CC16 at least it appears that output current sensing is duplicated.
 
-Assignment              Port_Pin    Full-scale  Function                    
---------------------------------------------------------
-DI_AI_OUT0              E_06        39340mV     HSD1 OUTPUT1
-DI_AI_OUT1              A_00        39340mV     HSD1 OUTPUT2
-DI_AI_OUT2              A_15        39340mV     HSD1 OUTPUT3
-DI_AI_OUT3              A_16        39340mV     HSD1 OUTPUT4
-DI_AI_OUT4              A_01        39340mV     HSD2 OUTPUT1
-DI_AI_OUT5              D_02        39340mV     HSD2 OUTPUT2
-DI_AI_OUT6              A_02        39340mV     HSD2 OUTPUT3
-DI_AI_OUT7              A_03        39340mV     HSD2 OUTPUT4
-DI_AI_INA_OUT0          C_16        5000mV      ???
-DI_AI_INA_OUT1          C_17        5000mV      ???
-DI_AI_INA_OUT2          C_01        5000mV      ???
-DI_AI_INA_OUT3          C_00        5000mV      ???
-DI_AI_INA_OUT4          B_02        5000mV      ???
-DI_AI_INA_OUT5          C_14        5000mV      ???
-DI_AI_INA_OUT6          C_15        5000mV      ???
-DI_AI_INA_OUT7          B_03        5000mV      ???
-DI_AI_SNS1              B_13 (1)    32000mV     HSD1/HSD2 CURRENT SENSE1
-DI_AI_SNS2              B_14 (1)    32000mV     HSD1/HSD2 CURRENT SENSE2
-DI_AI_SNS3              D_04 (1)    32000mV     HSD1/HSD2 CURRENT SENSE3
-DI_AI_SNS4              B_12 (1)    32000mV     HSD1/HSD2 CURRENT SENSE4
+Assignment              Port_Pin    ADC       Full-scale  Function                    
+-------------------------------------------------------------------
+DI_AI_OUT0              E_06        1/11      39340mV     HSD1 OUTPUT1
+DI_AI_OUT1              A_00        0/0       39340mV     HSD1 OUTPUT2
+DI_AI_OUT2              A_15        1/12      39340mV     HSD1 OUTPUT3
+DI_AI_OUT3              A_16        1/13      39340mV     HSD1 OUTPUT4
+DI_AI_OUT4              A_01        0/1       39340mV     HSD2 OUTPUT1
+DI_AI_OUT5              D_02        1/2       39340mV     HSD2 OUTPUT2
+DI_AI_OUT6              A_02        1/0       39340mV     HSD2 OUTPUT3
+DI_AI_OUT7              A_03        1/1       39340mV     HSD2 OUTPUT4
+DI_AI_INA_OUT0          C_16        0/14      5000mV      ???
+DI_AI_INA_OUT1          C_17        0/15      5000mV      ???
+DI_AI_INA_OUT2          C_01        0/9       5000mV      ???
+DI_AI_INA_OUT3          C_00        0/8       5000mV      ???
+DI_AI_INA_OUT4          B_02        0/6       5000mV      ???
+DI_AI_INA_OUT5          C_14        0/12      5000mV      ???
+DI_AI_INA_OUT6          C_15        0/13      5000mV      ???
+DI_AI_INA_OUT7          B_03        0/7       5000mV      ???
+DI_AI_SNS1              B_13 (1)    1/8       32000mV     HSD1/HSD2 CURRENT SENSE1
+DI_AI_SNS2              B_14 (1)    1/9       32000mV     HSD1/HSD2 CURRENT SENSE2
+DI_AI_SNS3              D_04 (1)    1/6       32000mV     HSD1/HSD2 CURRENT SENSE3
+DI_AI_SNS4              B_12 (1)    1/7       32000mV     HSD1/HSD2 CURRENT SENSE4
 
 (1) Pins are shared, only one of DO_CS_HSDx may be low at a time to ensure
     correct measurement.
@@ -370,3 +544,40 @@ E_13        CAN_ERR2
 E_14        CAN_WAKE2
 E_15        DO_SHIFT_OE
 E_16        DO_SHIFT_MR
+
+## ADC channel mapping
+
+Channel     Signal          Function
+-------------------------------------
+0/0         DI_AI_OUT1      HSD1 OUTPUT2
+0/1         DI_AI_OUT4      HSD2 OUTPUT1
+0/2         DI_AI_A_IN3     IN3
+0/3         DI_AI_A_IN2     IN2
+0/4         DI_AI_A_IN1     IN1
+0/5         DI_AI_A_IN0     IN0
+0/6         DI_AI_INA_OUT4  ???
+0/7         DI_AI_INA_OUT7  ???
+0/8         DI_AI_INA_OUT3  ???
+0/9         DI_AI_INA_OUT2  ???
+0/10        DI_AI_KL30_1    pin A1 KL30 sense
+0/11        DI_AI_KL30_2    pin A8 KL30 sense
+0/12        DI_AI_INA_OUT5  ???
+0/13        DI_AI_INA_OUT6  ???
+0/14        DI_AI_INA_OUT0  ???
+0/15        DI_AI_INA_OUT1  ???
+1/0         DI_AI_OUT6      HSD2 OUTPUT3
+1/1         DI_AI_OUT7      HSD2 OUTPUT4
+1/2         DI_AI_OUT5      HSD2 OUTPUT2
+1/3         DI_AI_VREF      Sensor reference supply readback
+1/4         DI_AI_VARIANTE  ???
+1/5         DI_AI_ID        analog input or ID pin
+1/6         DI_AI_SNS3      HSD1/HSD2 CURRENT SENSE3
+1/7         DI_AI_SNS4      HSD1/HSD2 CURRENT SENSE4
+1/8         DI_AI_SNS1      HSD1/HSD2 CURRENT SENSE1
+1/9         DI_AI_SNS2      HSD1/HSD2 CURRENT SENSE2
+1/10        Pin74           nc
+1/11        DI_AI_OUT0      HSD1 OUTPUT1
+1/12        DI_AI_OUT2      HSD1 OUTPUT3
+1/13        DI_AI_OUT3      HSD1 OUTPUT4
+1/14        DI_AI_A_IN5     IN5
+1/15        DI_AI_A_IN4     IN4
