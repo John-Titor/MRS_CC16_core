@@ -25,6 +25,9 @@ MEMORY
 
 SECTIONS
 {
+    /*
+     * -> flash metadata
+     */
     .application_header :
     {
         KEEP(*(.application_header))
@@ -42,6 +45,10 @@ SECTIONS
         KEEP(*(.flash_config))
     } > flash_config
 
+    /*
+     * -> flash application
+     */
+    . = ORIGIN(application_flash);
     .text :
     {
         *(.text)
@@ -83,6 +90,10 @@ SECTIONS
     __application_end = .;
     __application_size = __application_end - __application_start;
 
+    /*
+     * -> SRAM
+     */
+    . = ORIGIN(sram_h);
     .bss ALIGN(4) (NOLOAD) :
     {
         __bss_start = .;
