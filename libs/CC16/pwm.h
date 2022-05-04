@@ -67,7 +67,7 @@ private:
 	__IO FTM0_Type	&_reg;
 };
 
-class Pin : public ::Pin::PeripheralPin
+class Pin : public ::Pins::PeripheralPin
 {
 public:
 	constexpr Pin(__IO void *cfgbase, 
@@ -75,7 +75,7 @@ public:
 	              uint8_t function,
 	              _FTM ftm,
 	              uint8_t channel) :
-		::Pin::PeripheralPin(cfgbase, index, function),
+		::Pins::PeripheralPin(cfgbase, index, function),
 		_ftm 	 { ftm },
 		_channel { channel }
 	{}
@@ -84,7 +84,7 @@ public:
 
 	void configure(void)
 	{
-		::Pin::PeripheralPin::configure();
+		::Pins::PeripheralPin::configure();
 		set(0);
 	}
 
@@ -102,13 +102,13 @@ private:
 #define _FTM1	::PWM::_FTM(FTM1)
 #define _FTM2	::PWM::_FTM(FTM2)
 
-#define DO_HSD1_OUT0    ::PWM::Pin(PORTD, ::Pin::PortD::_DO_HSD1_OUT0, 2, _FTM2, 5)
-#define DO_HSD1_OUT1    ::PWM::Pin(PORTB, ::Pin::PortB::_DO_HSD1_OUT1, 2, _FTM0, 4)
-#define DO_HSD1_OUT2    ::PWM::Pin(PORTE, ::Pin::PortE::_DO_HSD1_OUT2, 2, _FTM0, 6)
-#define DO_HSD1_OUT3    ::PWM::Pin(PORTB, ::Pin::PortB::_DO_HSD1_OUT3, 2, _FTM0, 5)
-#define DO_HSD2_OUT4    ::PWM::Pin(PORTD, ::Pin::PortD::_DO_HSD2_OUT4, 2, _FTM2, 3)
-#define DO_HSD2_OUT5    ::PWM::Pin(PORTD, ::Pin::PortD::_DO_HSD2_OUT5, 2, _FTM2, 2)
-#define DO_HSD2_OUT6    ::PWM::Pin(PORTD, ::Pin::PortD::_DO_HSD2_OUT6, 6, _FTM1, 5)
-#define DO_HSD2_OUT7    ::PWM::Pin(PORTD, ::Pin::PortD::_DO_HSD2_OUT7, 2, _FTM0, 1)
+#define DO_HSD1_OUT0    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD1_OUT0, 2, _FTM2, 5)
+#define DO_HSD1_OUT1    ::PWM::Pin(PORTB, ::Pins::PortB::_DO_HSD1_OUT1, 2, _FTM0, 4)
+#define DO_HSD1_OUT2    ::PWM::Pin(PORTE, ::Pins::PortE::_DO_HSD1_OUT2, 2, _FTM0, 6)
+#define DO_HSD1_OUT3    ::PWM::Pin(PORTB, ::Pins::PortB::_DO_HSD1_OUT3, 2, _FTM0, 5)
+#define DO_HSD2_OUT4    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT4, 2, _FTM2, 3)
+#define DO_HSD2_OUT5    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT5, 2, _FTM2, 2)
+#define DO_HSD2_OUT6    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT6, 6, _FTM1, 5)
+#define DO_HSD2_OUT7    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT7, 2, _FTM0, 1)
 
 }
