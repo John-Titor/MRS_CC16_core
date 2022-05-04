@@ -289,7 +289,7 @@ typedef enum
 #define LIN_EN          ::Pin::GPIOOut(PTE, PORTE, ::Pin::PortE::_LIN_EN)
 
 //
-// Peripheral pins not requiring other setup.
+// Peripheral and unused pins not requiring other setup.
 //
 #define MC_CAN_RXD1     ::Pin::PeripheralPin(PORTE, ::Pin::PortE::_MC_CAN_RXD1, 5)
 #define MC_CAN_RXD2     ::Pin::PeripheralPin(PORTA, ::Pin::PortA::_MC_CAN_RXD2, 3)
@@ -301,14 +301,9 @@ typedef enum
 #define Pin82           ::Pin::PeripheralPin(PORTE, ::Pin::PortE::_Pin82, 0)
 #define WD              ::Pin::PeripheralPin(PORTE, ::Pin::PortE::_WD, 0)
 
-
-#define MC_FREQ_A_IN0   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN0, 2)
-#define MC_FREQ_A_IN1   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN1, 2)
-#define MC_FREQ_A_IN2   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN2, 2)
-#define MC_FREQ_A_IN3   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN3, 2)
-#define MC_FREQ_A_IN4   ::Pin::PeripheralPin(PORTB, ::Pin::PortB::_MC_FREQ_A_IN4, 2)
-#define MC_FREQ_A_IN5   ::Pin::PeripheralPin(PORTB, ::Pin::PortB::_MC_FREQ_A_IN5, 2)
-
+//
+// Analog input pins.
+//
 #define DI_AI_A_IN0     ::Pin::AnalogPin(PORTB, ::Pin::PortB::_DI_AI_A_IN0)
 #define DI_AI_A_IN1     ::Pin::AnalogPin(PORTB, ::Pin::PortB::_DI_AI_A_IN1)
 #define DI_AI_A_IN2     ::Pin::AnalogPin(PORTA, ::Pin::PortA::_DI_AI_A_IN2)
@@ -340,5 +335,17 @@ typedef enum
 #define DI_AI_SNS4      ::Pin::AnalogPin(PORTB, ::Pin::PortB::_DI_AI_SNS4)
 #define DI_AI_VARIANTE  ::Pin::AnalogPin(PORTC, ::Pin::PortC::_DI_AI_VARIANTE)
 #define DI_AI_VREF      ::Pin::AnalogPin(PORTD, ::Pin::PortD::_DI_AI_VREF)
+
+//
+// Peripheral pins on hold waiting for function implementation.
+//
+#define MC_FREQ_A_IN0   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN0, 2)
+#define MC_FREQ_A_IN1   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN1, 2)
+#define MC_FREQ_A_IN2   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN2, 2)
+#define MC_FREQ_A_IN3   ::Pin::PeripheralPin(PORTC, ::Pin::PortC::_MC_FREQ_A_IN3, 2)
+#define MC_FREQ_A_IN4   ::Pin::PeripheralPin(PORTB, ::Pin::PortB::_MC_FREQ_A_IN4, 2)
+#define MC_FREQ_A_IN5   ::Pin::PeripheralPin(PORTB, ::Pin::PortB::_MC_FREQ_A_IN5, 2)
+
+
 
 } // namespace GPIO
