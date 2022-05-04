@@ -1,5 +1,5 @@
 #
-# Build a CC16 app with the S32K SDK.
+# Build a CC16 app.
 #
 # Call with:
 #
@@ -31,9 +31,10 @@ APP_SRCS		?= $(foreach src_dir,$(APP_SRC_DIRS),$(wildcard $(src_dir)/*.c) \
 			   				     $(wildcard $(src_dir)/*.cpp) \
 			   				     $(wildcard $(src_dir)/*.S))
 
+LIB_DEFINES		:=
 LIB_SRCS		:=
 LIB_INCLUDE_DIRS	:= $(ROOT_DIR)/libs
-LIBS			:= $(APP_LIBS) crt CC16
+LIBS			:= $(APP_LIBS) crt CC16 CMSIS
 LIB_DIRS		:= $(foreach lib,$(LIBS),$(ROOT_DIR)/libs/$(lib))
 LIB_MK_INCLUDES		:= $(foreach lib_dir,$(LIB_DIRS),$(lib_dir)/lib.mk)
 include $(LIB_MK_INCLUDES)
@@ -53,12 +54,12 @@ ARCH_FLAGS		 = -march=armv7e-m+fp \
 INCLUDES		:= $(addprefix -I,$(APP_INCLUDE_DIRS) $(LIB_INCLUDE_DIRS))
 
 ASFLAGS			:= $(ARCH_FLAGS) \
-			   $(addprefix -D,$(SDK_DEFINES) $(APP_DEFINES)) \
+			   $(addprefix -D,$(APP_DEFINES) $(LIB_DEFINES)) \
 			   $(INCLUDES) \
 			   $(APP_ASFLAGS)
 
 COMMON_FLAGS		:= $(ARCH_FLAGS) \
-			   $(addprefix -D,$(SDK_DEFINES) $(APP_DEFINES)) \
+			   $(addprefix -D,$(APP_DEFINES) $(LIB_DEFINES)) \
 			   $(INCLUDES) \
 			   -ffreestanding \
 			   -Os \
