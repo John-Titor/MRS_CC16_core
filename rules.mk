@@ -32,8 +32,8 @@ APP_SRCS		?= $(foreach src_dir,$(APP_SRC_DIRS),$(wildcard $(src_dir)/*.c) \
 			   				     $(wildcard $(src_dir)/*.S))
 
 LIB_SRCS		:=
-LIB_INCLUDE_DIRS	:=
-LIBS			:= $(APP_LIBS) CC16 SDK
+LIB_INCLUDE_DIRS	:= $(ROOT_DIR)/libs
+LIBS			:= $(APP_LIBS) crt CC16
 LIB_DIRS		:= $(foreach lib,$(LIBS),$(ROOT_DIR)/libs/$(lib))
 LIB_MK_INCLUDES		:= $(foreach lib_dir,$(LIB_DIRS),$(lib_dir)/lib.mk)
 include $(LIB_MK_INCLUDES)
@@ -44,7 +44,6 @@ CXX			:= $(TOOL_PREFIX)-g++
 LD			:= $(CC)
 OBJCOPY			:= $(TOOL_PREFIX)-objcopy
 SIZE			:= $(TOOL_PREFIX)-size
-LINKER_SCRIPT		?= $(ROOT_DIR)/MRS_CC16.ld
 
 ARCH_FLAGS		 = -march=armv7e-m+fp \
 			   -mthumb \
@@ -82,6 +81,8 @@ CFLAGS			:= $(COMMON_FLAGS) \
 
 CXXFLAGS		:= $(COMMON_FLAGS) \
 			   -std=gnu++17 \
+			   -fno-exceptions \
+			   -fno-rtti \
 			   $(APP_CXXFLAGS)
 
 LDFLAGS			:= $(COMMON_FLAGS) \
@@ -104,7 +105,7 @@ APP_SREC		:= $(BUILD_DIR)/$(APP_NAME).s19
 SRCS			:= $(APP_SRCS) $(LIB_SRCS)
 SOBJS			:= $(patsubst %.S,%.o,$(filter %.S,$(SRCS)))
 COBJS			:= $(patsubst %.c,%.o,$(filter %.c,$(SRCS)))
-CXXOBJS			:= $(patsubst %.cpp,%.o,$(filter %.cpp,$(SRCS)))
+CPPOBJS			:= $(patsubst %.cpp,%.o,$(filter %.cpp,$(SRCS)))
 
 OBJS			:= $(addprefix $(BUILD_DIR)/, $(SOBJS) $(COBJS) $(CPPOBJS))
 DEPS			:= $(OBJS:.o=.d)
