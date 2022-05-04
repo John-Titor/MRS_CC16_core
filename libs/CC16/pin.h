@@ -220,7 +220,7 @@ typedef enum
     _DI_AI_VREF,
     _DI_AI_SNS3,
     _DO_HSD2_OUT4,
-    _DOX_SHIFT_IN_DS,
+    _DO_SHIFT_IN_DS,
     _DI_INTERFACE2_A,
     _DI_INTERFACE2_B,
     _DO_HSD2_OUT6,
@@ -253,8 +253,49 @@ typedef enum
     _CAN_WAKE2,
     _DO_SHIFT_OE,
     _DO_SHIFT_MR,
-    _PIN_MAX,
 } PortE;
+
+typedef enum
+{
+    _DCDC_8V5,
+    _DCDC_10V,
+    _PD_A_IN5,
+    _PD_A_IN4,
+    _PD_A_IN3,
+    _PD_A_IN2,
+    _PD_A_IN1,
+    _PD_A_IN0,
+    _PU_A_IN5,
+    _PU_A_IN4,
+    _PU_A_IN3,
+    _PU_A_IN2,
+    _PU_A_IN1,
+    _PU_A_IN0,
+    _Max,
+} PortX;
+} // namespace GPIO
+
+namespace ExpanderPins
+{
+    void reset(void);
+    void set(uint8_t index, bool state);
+}
+
+class ExpanderPin
+{
+public:
+    constexpr ExpanderPin(uint8_t index) :
+        _index { index }
+    {}
+
+    void set(bool v)    { ExpanderPins::set(_index, v); }
+    void set()          { set(true); }
+    void clear()        { set(false); }
+    void operator = (bool v) { set(v); }
+
+private:
+    const uint8_t   _index;
+};
 
 //
 // GPIO pins.
@@ -280,12 +321,12 @@ typedef enum
 #define DO_RS3          ::Pin::GPIOOut(PTC, PORTC, ::Pin::PortC::_DO_RS3)
 #define DO_RS4          ::Pin::GPIOOut(PTB, PORTB, ::Pin::PortB::_DO_RS4)
 #define DO_RS5          ::Pin::GPIOOut(PTB, PORTB, ::Pin::PortB::_DO_RS5)
+#define DO_SHIFT_IN_DS  ::Pin::GPIOOut(PTD, PORTD, ::Pin::PortD::_DO_SHIFT_IN_DS)
 #define DO_SHIFT_MR     ::Pin::GPIOOut(PTE, PORTE, ::Pin::PortE::_DO_SHIFT_MR)
 #define DO_SHIFT_OE     ::Pin::GPIOOut(PTE, PORTE, ::Pin::PortE::_DO_SHIFT_OE)
 #define DO_SHIFT_SH_CP  ::Pin::GPIOOut(PTD, PORTD, ::Pin::PortD::_DO_SHIFT_SH_CP)
 #define DO_SHIFT_ST_CP  ::Pin::GPIOOut(PTD, PORTD, ::Pin::PortD::_DO_SHIFT_ST_CP)
 #define DO_VREF_EN      ::Pin::GPIOOut(PTD, PORTD, ::Pin::PortD::_DO_VREF_EN)
-#define DOX_SHIFT_IN_DS ::Pin::GPIOOut(PTD, PORTD, ::Pin::PortD::_DOX_SHIFT_IN_DS)
 #define LIN_EN          ::Pin::GPIOOut(PTE, PORTE, ::Pin::PortE::_LIN_EN)
 
 //
@@ -346,6 +387,20 @@ typedef enum
 #define MC_FREQ_A_IN4   ::Pin::PeripheralPin(PORTB, ::Pin::PortB::_MC_FREQ_A_IN4, 2)
 #define MC_FREQ_A_IN5   ::Pin::PeripheralPin(PORTB, ::Pin::PortB::_MC_FREQ_A_IN5, 2)
 
-
-
-} // namespace GPIO
+//
+// Virtual pins
+//
+#define DCDC_8V5        ::ExpanderPin::Pin(::Pin::PortX::DCDC_8V5)
+#define DCDC_10V        ::ExpanderPin::Pin(::Pin::PortX::DCDC_10V)
+#define PD_A_IN5        ::ExpanderPin::Pin(::Pin::PortX::PD_A_IN5)
+#define PD_A_IN4        ::ExpanderPin::Pin(::Pin::PortX::PD_A_IN4)
+#define PD_A_IN3        ::ExpanderPin::Pin(::Pin::PortX::PD_A_IN3)
+#define PD_A_IN2        ::ExpanderPin::Pin(::Pin::PortX::PD_A_IN2)
+#define PD_A_IN1        ::ExpanderPin::Pin(::Pin::PortX::PD_A_IN1)
+#define PD_A_IN0        ::ExpanderPin::Pin(::Pin::PortX::PD_A_IN0)
+#define PU_A_IN5        ::ExpanderPin::Pin(::Pin::PortX::PU_A_IN5)
+#define PU_A_IN4        ::ExpanderPin::Pin(::Pin::PortX::PU_A_IN4)
+#define PU_A_IN3        ::ExpanderPin::Pin(::Pin::PortX::PU_A_IN3)
+#define PU_A_IN2        ::ExpanderPin::Pin(::Pin::PortX::PU_A_IN2)
+#define PU_A_IN1        ::ExpanderPin::Pin(::Pin::PortX::PU_A_IN1)
+#define PU_A_IN0        ::ExpanderPin::Pin(::Pin::PortX::PU_A_IN0)

@@ -126,12 +126,12 @@ pin_setup(void)
     DO_RS3.configure();
     DO_RS4.configure();
     DO_RS5.configure();
+    DO_SHIFT_IN_DS.configure();
     DO_SHIFT_MR.configure();
     DO_SHIFT_OE.configure();
     DO_SHIFT_SH_CP.configure();
     DO_SHIFT_ST_CP.configure();
     DO_VREF_EN.configure();
-    DOX_SHIFT_IN_DS.configure();
     LIN_EN.configure();
     MC_CAN_RXD1.configure();
     MC_CAN_RXD2.configure();
@@ -148,6 +148,8 @@ pin_setup(void)
     Pin74.configure();
     Pin82.configure();
     WD.configure();
+
+    ExpanderPins::reset();
 }
 
 

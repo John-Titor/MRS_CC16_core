@@ -193,13 +193,10 @@ FDCRC           02006c9a 000051d5 !
 
 ## Pin mapping by function
 
-### "Virtual" output pins
+### "Virtual" / pin expander output pins
 
 In addition to the SoC pins, 14 additional outputs are attached to a shift register with behaviour similar to the 74595.
-Virtual pin V_00 is shifted in first.
-
-Where virtual pins are mentioned elsewhere in this document, they are associated with Port V
-(i.e. V_xx).
+Pin X_00 is shifted in first.
 
 Assignment              Port_Pin    595 pin         Function
 ------------------------------------------------------------
@@ -211,20 +208,20 @@ DO_SHIFT_IN_DS          D_06        A               Serial data.
 
 Assignment              Port_Pin    Function
 --------------------------------------------
-DCDC_8V5                V_00        VRef 8V5 select
-DCDC_10V                V_01        VRef 10V select
-PD_A_IN5                V_02        input pull-down enable
-PD_A_IN4                V_03         "
-PD_A_IN3                V_04
-PD_A_IN2                V_05
-PD_A_IN1                V_06
-PD_A_IN0                V_07
-PU_A_IN5                V_08        input pull-up enable
-PU_A_IN4                V_09         "
-PU_A_IN3                V_10
-PU_A_IN2                V_11
-PU_A_IN1                V_12
-PU_A_IN0                V_13
+DCDC_8V5                X_00        VRef 8V5 select
+DCDC_10V                X_01        VRef 10V select
+PD_A_IN5                X_02        input pull-down enable
+PD_A_IN4                X_03         "
+PD_A_IN3                X_04
+PD_A_IN2                X_05
+PD_A_IN1                X_06
+PD_A_IN0                X_07
+PU_A_IN5                X_08        input pull-up enable
+PU_A_IN4                X_09         "
+PU_A_IN3                X_10
+PU_A_IN2                X_11
+PU_A_IN1                X_12
+PU_A_IN0                X_13
 
 ### System power control
 
@@ -249,8 +246,8 @@ Assignment              Port_Pin    Function
 --------------------------------------------
 DO_VREF_EN              D_10        LM34919 SHUTDOWN
 DI_PGD                  A_17        VRef power good signal
-DCDC_8V5                V_00        LM34919 FB control
-DCDC_10V                V_01        LM34919 FB control
+DCDC_8V5                X_00        LM34919 FB control
+DCDC_10V                X_01        LM34919 FB control
 DI_AI_VREF              D_03        ADC1/3, 14444mV full-scale
 
 ### CAN/LIN/Serial interfaces and transciever controls
@@ -294,18 +291,18 @@ DI_AI_A_IN5             B_15      1/14      16920mV / 32250mV
 
 Assignment              Port_Pin    Function
 ----------------------------------------------
-PU_A_IN0                V_13        1k0 pull-up enable
-PU_A_IN1                V_12         "
-PU_A_IN2                V_11         "
-PU_A_IN3                V_10         "
-PU_A_IN4                V_09         "
-PU_A_IN5                V_08         "
-PD_A_IN0                V_07        330R pull-down enable
-PD_A_IN1                V_06         "
-PD_A_IN2                V_05         "
-PD_A_IN3                V_04         "
-PD_A_IN4                V_03         "
-PD_A_IN5                V_02         "
+PU_A_IN0                X_13        1k0 pull-up enable
+PU_A_IN1                X_12         "
+PU_A_IN2                X_11         "
+PU_A_IN3                X_10         "
+PU_A_IN4                X_09         "
+PU_A_IN5                X_08         "
+PD_A_IN0                X_07        330R pull-down enable
+PD_A_IN1                X_06         "
+PD_A_IN2                X_05         "
+PD_A_IN3                X_04         "
+PD_A_IN4                X_03         "
+PD_A_IN5                X_02         "
 DO_RS0                  C_09        16920mV / 32250mV range select
 DO_RS1                  E_07         "
 DO_RS2                  B_08         "
@@ -514,7 +511,7 @@ D_02        DI_AI_OUT5
 D_03        DI_AI_VREF
 D_04        DI_AI_SNS3
 D_05        DO_HSD2_OUT4
-D_06        DOX_SHIFT_IN_DS
+D_06        DO_SHIFT_IN_DS
 D_07        DI_INTERFACE2_A
 D_08        DI_INTERFACE2_B
 D_09        DO_HSD2_OUT6
@@ -544,6 +541,21 @@ E_13        CAN_ERR2
 E_14        CAN_WAKE2
 E_15        DO_SHIFT_OE
 E_16        DO_SHIFT_MR
+
+X_00        DCDC_8V5
+X_01        DCDC_10V
+X_02        PD_A_IN5
+X_03        PD_A_IN4
+X_04        PD_A_IN3
+X_05        PD_A_IN2
+X_06        PD_A_IN1
+X_07        PD_A_IN0
+X_08        PU_A_IN5
+X_09        PU_A_IN4
+X_10        PU_A_IN3
+X_11        PU_A_IN2
+X_12        PU_A_IN1
+X_13        PU_A_IN0
 
 ## ADC channel mapping
 
