@@ -4,8 +4,24 @@
 
 #include <CMSIS/S32K144.h>
 
-#include "pin.h"
+#include "pins.h"
 #include "pwm.h"
+#include "watchdog.h"
+
+void
+die(int count) {
+    for (;;) {
+        int n;
+
+        for (n = 0; n < count; n++) {
+            DO_HSD1_OUT0.set();
+            for (volatile int x = 0; x < 1000000; x++) {}
+            DO_HSD1_OUT0.clear();
+            for (volatile int x = 0; x < 1000000; x++) {}           
+        }
+        for (volatile int x = 0; x < 5000000; x++) {}
+    }
+}
 
 extern "C" void main(void);
 
@@ -22,6 +38,9 @@ static void pwm_setup(void);
 void
 main(void)
 {
+    //Watchdog::reset();
+    Watchdog::disable();
+
     /* do system hardware init */
     clock_setup();
     pin_setup();
@@ -33,11 +52,18 @@ main(void)
     // UART (if appropriate)
     // LIN (if appropriate)
 
+    //DO_HSD1_OUT1.set(50);
+    FTM0->FTM0_C4V = 100;
+    FTM0->FTM0_SYNC = 0x80;
+    die(2);
+
     /* run one-time app startup code */
     app_init();
 
+
     /* spin running the app loop */
     for (;;) {
+        //Watchdog::reset();
         app_loop();
         /* TODO - T15 power-down, deferred events, etc. */
     }
@@ -54,13 +80,13 @@ clock_setup(void)
     PCC->PCC_PORTC_b.CGC = 1;
     PCC->PCC_PORTD_b.CGC = 1;
 
-    // FTM0-2 on, running from SYS_CLK
-    PCC->PCC_FTM0_b.PCS = 1;
+    // FTM0-2 on, running from SPLL_DIV1
     PCC->PCC_FTM0_b.CGC = 1;
-    PCC->PCC_FTM1_b.PCS = 1;
+    PCC->PCC_FTM0_b.PCS = 0x1;
     PCC->PCC_FTM1_b.CGC = 1;
-    PCC->PCC_FTM2_b.PCS = 1;
+    PCC->PCC_FTM1_b.PCS = 0x1;
     PCC->PCC_FTM2_b.CGC = 1;
+    PCC->PCC_FTM2_b.PCS = 0x1;
 }
 
 void
@@ -156,5 +182,5 @@ pin_setup(void)
 void
 pwm_setup(void)
 {
-    // XXX
+    //::PWM::configure();
 }
