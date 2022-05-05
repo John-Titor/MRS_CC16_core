@@ -22,7 +22,7 @@ Base            Size            Function
 -----------------------------------------
 0x0000_0000     0x0001_0000     Boot ROM
 0x0001_0000     0x0000_1000     Application header
-0x0001_1000     0x0000_0400     Interrupt vectors (initial)
+0x0001_1000     0x0000_0400     Interrupt vectors
 0x0001_1400     0x0000_0010     Flash configuration
 0x0001_1410     0x0006_bbf0     Application program
 
@@ -41,6 +41,11 @@ typedef struct
     uint8_t signature_key[512];   zeros
 } struct_hal_sys_app_header_t;
 ````
+
+### Interrupt vectors
+
+The full 256 vector table is required. Vector 255 should be all-1s, as it's noted
+by NXP as being reserved for a "user TRIM" value.
 
 ### Flash configuration
 
@@ -383,14 +388,14 @@ DI_AI_OUT4              A_01        0/1       39340mV     HSD2 OUTPUT1
 DI_AI_OUT5              D_02        1/2       39340mV     HSD2 OUTPUT2
 DI_AI_OUT6              A_02        1/0       39340mV     HSD2 OUTPUT3
 DI_AI_OUT7              A_03        1/1       39340mV     HSD2 OUTPUT4
-DI_AI_INA_OUT0          C_16        0/14      5000mV      ???
-DI_AI_INA_OUT1          C_17        0/15      5000mV      ???
-DI_AI_INA_OUT2          C_01        0/9       5000mV      ???
-DI_AI_INA_OUT3          C_00        0/8       5000mV      ???
-DI_AI_INA_OUT4          B_02        0/6       5000mV      ???
-DI_AI_INA_OUT5          C_14        0/12      5000mV      ???
-DI_AI_INA_OUT6          C_15        0/13      5000mV      ???
-DI_AI_INA_OUT7          B_03        0/7       5000mV      ???
+DI_AI_INA_OUT0          C_16        0/14      5000mV      OUT0 current
+DI_AI_INA_OUT1          C_17        0/15      5000mV      OUT1 current
+DI_AI_INA_OUT2          C_01        0/9       5000mV      OUT2 current
+DI_AI_INA_OUT3          C_00        0/8       5000mV      OUT3 current
+DI_AI_INA_OUT4          B_02        0/6       5000mV      OUT4 current
+DI_AI_INA_OUT5          C_14        0/12      5000mV      OUT5 current
+DI_AI_INA_OUT6          C_15        0/13      5000mV      OUT6 current
+DI_AI_INA_OUT7          B_03        0/7       5000mV      OUT7 current
 DI_AI_SNS1              B_13 (1)    1/8       32000mV     HSD1/HSD2 CURRENT SENSE1
 DI_AI_SNS2              B_14 (1)    1/9       32000mV     HSD1/HSD2 CURRENT SENSE2
 DI_AI_SNS3              D_04 (1)    1/6       32000mV     HSD1/HSD2 CURRENT SENSE3
