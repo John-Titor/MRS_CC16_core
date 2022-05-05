@@ -31,6 +31,7 @@ SECTIONS
     .application_header :
     {
         KEEP(*(.application_header))
+        . = ORIGIN(application_header) + LENGTH(application_header);
     } > application_header
 
     .vector_table :
