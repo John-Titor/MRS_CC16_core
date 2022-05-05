@@ -1,0 +1,29 @@
+MRS CC16 core runtime:
+
+
+  Unimplemented:
+    ☐ CAN
+      ☐ basic message sending
+      ☐ console output
+      ☐ wakeup
+    ☐ ADC
+    ☐ input pins
+      ☐ pull up/down control
+        code complete
+      ☐ analog / digital modes
+        code complete
+    ☐ output monitoring
+      ☐ voltage (AI_OUT*)
+      ☐ current (AI_INA_*)
+      ☐ driver sense (AI_SNS*)
+    ☐ supply monitoring
+      ☐ KL30
+      ☐ KL15
+    ☐ Vref output
+    ☐ NVRAM
+
+  Investigate:
+    ☐ AI_AI_INA_OUT* - what is this?
+
+  Bugs:
+   ☐ Fix PWM output <CC16/pwm.h>
