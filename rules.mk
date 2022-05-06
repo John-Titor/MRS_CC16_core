@@ -31,6 +31,7 @@ APP_SRCS		?= $(foreach src_dir,$(APP_SRC_DIRS),$(wildcard $(src_dir)/*.c) \
 			   				     $(wildcard $(src_dir)/*.cpp) \
 			   				     $(wildcard $(src_dir)/*.S))
 
+GLOBAL_DEPS		:=
 LIB_DEFINES		:=
 LIB_SRCS		:=
 LIB_INCLUDE_DIRS	:= $(ROOT_DIR)/libs
@@ -111,7 +112,7 @@ CPPOBJS			:= $(patsubst %.cpp,%.o,$(filter %.cpp,$(SRCS)))
 OBJS			:= $(addprefix $(BUILD_DIR)/, $(SOBJS) $(COBJS) $(CPPOBJS))
 DEPS			:= $(OBJS:.o=.d)
 
-GLOBAL_DEPS		:= $(MAKEFILE_LIST) $(LINKER_SCRIPT)
+GLOBAL_DEPS		+= $(MAKEFILE_LIST) $(LINKER_SCRIPT)
 
 .PHONY: build
 build: $(APP_SREC)

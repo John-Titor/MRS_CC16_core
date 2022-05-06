@@ -5,6 +5,7 @@
 # pointing to the root of the extracted S32K1xx SDK.
 #
 ROOT_DIR		:= $(dir $(lastword $(MAKEFILE_LIST)))
+OBJ_DIR			:=$(ROOT_DIR)/obj
 VALID_APPS		:= $(basename $(notdir $(wildcard $(ROOT_DIR)/apps/*/*.mk)))
 
 ifneq ($(abspath $(CURDIR)),$(abspath $(ROOT_DIR)))
@@ -20,14 +21,15 @@ ifneq ($(INVALID_APPS),)
 $(error Invalid application(s): $(INVALID_APPS))
 endif
 
-ACTIONS			 = build clean
+ACTIONS			 = build
 APP_ACTIONS		 = $(foreach action,$(ACTIONS),$(foreach app,$(APPS),$(action)~$(app)))
 
 .PHONY: build
 build:	$(filter build~%,$(APP_ACTIONS))
 
 .PHONY: clean
-clean:	$(filter clean~%,$(APP_ACTIONS))
+clean:
+	rm -rf $(OBJ_DIR)
 
 $(APP_ACTIONS):	action = $(word 1,$(subst ~, ,$@))
 $(APP_ACTIONS):	app = $(word 2,$(subst ~, ,$@))

@@ -25,7 +25,7 @@ if __name__ == '__main__':
     import time
     from interface import Interface
 
-    parser = argparse.ArgumentParser(description='E36 tail module console logger')
+    parser = argparse.ArgumentParser(description='CC16_core console logger')
     parser.add_argument('--interface-channel',
                         type=str,
                         metavar='CHANNEL',

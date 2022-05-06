@@ -52,19 +52,14 @@ main(void)
     // UART (if appropriate)
     // LIN (if appropriate)
 
-    //DO_HSD1_OUT1.set(50);
-    FTM0->FTM0_C4V = 100;
-    FTM0->FTM0_SYNC = 0x80;
-    die(2);
-
     /* run one-time app startup code */
     app_init();
-
 
     /* spin running the app loop */
     for (;;) {
         //Watchdog::reset();
         app_loop();
+        die(3);
         /* TODO - T15 power-down, deferred events, etc. */
     }
 }
@@ -76,17 +71,14 @@ clock_setup(void)
     // clock tree, so we can leave it alone.
 
     // GPIO clocks on
-    PCC->PCC_PORTB_b.CGC = 1;
-    PCC->PCC_PORTC_b.CGC = 1;
-    PCC->PCC_PORTD_b.CGC = 1;
+    PCC.PCC_PORTB = PCC_PCC_PORTB_CGC;
+    PCC.PCC_PORTC = PCC_PCC_PORTB_CGC;
+    PCC.PCC_PORTD = PCC_PCC_PORTB_CGC;
 
     // FTM0-2 on, running from SPLL_DIV1
-    PCC->PCC_FTM0_b.CGC = 1;
-    PCC->PCC_FTM0_b.PCS = 0x1;
-    PCC->PCC_FTM1_b.CGC = 1;
-    PCC->PCC_FTM1_b.PCS = 0x1;
-    PCC->PCC_FTM2_b.CGC = 1;
-    PCC->PCC_FTM2_b.PCS = 0x1;
+    PCC.PCC_FTM0 = PCC_PCC_FTM0_CGC | PCC_PCC_FTM0_PCS(1);
+    PCC.PCC_FTM1 = PCC_PCC_FTM1_CGC | PCC_PCC_FTM1_PCS(1);
+    PCC.PCC_FTM2 = PCC_PCC_FTM2_CGC | PCC_PCC_FTM2_PCS(1);
 }
 
 void
@@ -175,7 +167,7 @@ pin_setup(void)
     Pin82.configure();
     WD.configure();
 
-    ExpanderPins::reset();
+    ExpanderPin::reset();
 }
 
 

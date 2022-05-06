@@ -6,57 +6,43 @@
 #include <stdint.h>
 #include <CMSIS/S32K144.h>
 
-namespace ExpanderPins
+struct ExpanderPin
 {
-    void reset(void);
-    void set(uint8_t index, bool state);
+    uint8_t             _index;
 
-    typedef enum
-    {
-        _DCDC_8V5,
-        _DCDC_10V,
-        _PD_A_IN5,
-        _PD_A_IN4,
-        _PD_A_IN3,
-        _PD_A_IN2,
-        _PD_A_IN1,
-        _PD_A_IN0,
-        _PU_A_IN5,
-        _PU_A_IN4,
-        _PU_A_IN3,
-        _PU_A_IN2,
-        _PU_A_IN1,
-        _PU_A_IN0,
-        _Max,
-    } PortX;
+    void set(bool v)         const;
+    void set()               const { set(true); }
+    void clear()             const { set(false); }
+    void operator = (bool v) const { set(v); }
 
-    class Pin
-    {
-    public:
-        constexpr Pin(uint8_t index) :
-            _index { index }
-        {}
+    static void         reset();
+    static uint16_t     _state;
+    static void         update(void);
+};
 
-        void set(bool v)    { ExpanderPins::set(_index, v); }
-        void set()          { set(true); }
-        void clear()        { set(false); }
-        void operator = (bool v) { set(v); }
-
-    private:
-        const uint8_t   _index;
-    };
-
-} // namespace ExpanderPins
+extern const ExpanderPin DCDC_8V5;
+extern const ExpanderPin DCDC_10V;
+extern const ExpanderPin PD_A_IN5;
+extern const ExpanderPin PD_A_IN4;
+extern const ExpanderPin PD_A_IN3;
+extern const ExpanderPin PD_A_IN2;
+extern const ExpanderPin PD_A_IN1;
+extern const ExpanderPin PD_A_IN0;
+extern const ExpanderPin PU_A_IN5;
+extern const ExpanderPin PU_A_IN4;
+extern const ExpanderPin PU_A_IN3;
+extern const ExpanderPin PU_A_IN2;
+extern const ExpanderPin PU_A_IN1;
+extern const ExpanderPin PU_A_IN0;
 
 namespace Pins
 {
     class _Pin
     {
     public:
-        constexpr _Pin(__IO void *cfgbase,
-                       uint8_t index) :
-            _cfgh   { ((PORTA_Type *)cfgbase)->PORTA_GPCHR },
-            _cfgl   { ((PORTA_Type *)cfgbase)->PORTA_GPCLR },
+        constexpr _Pin(volatile PORT_regs &cfg,
+                       uint32_t index) :
+            _cfg    { cfg },
             _mask   { 1U << index }
         {}
 
@@ -64,15 +50,14 @@ namespace Pins
         static const uint8_t    func_analog = 0;
         static const uint8_t    func_gpio = 1;
 
-        __IOM uint32_t  &_cfgh;
-        __IOM uint32_t  &_cfgl;
-        const uint32_t  _mask;
+        volatile PORT_regs  &_cfg;
+        const uint32_t      _mask;
 
-        void configure(uint8_t function) volatile {
+        void configure(uint32_t function) volatile {
             if (_mask < 0x10000) {
-                _cfgl = (_mask << 16) | (function << 8);
+                _cfg.GPCLR = (_mask << 16) | (function << 8);
             } else {
-                _cfgh = _mask | (function << 8);
+                _cfg.GPCHR = _mask | function << 8;
             }
         }
     };
@@ -80,33 +65,25 @@ namespace Pins
     class _GPIO : public _Pin
     {
     public:
-        constexpr _GPIO(__IO void *iobase,
-                        __IO void *cfgbase,
-                        uint8_t index) :
-            _Pin(cfgbase, index),
-            _set        { ((PTA_Type *)iobase)->GPIOA_PSOR },
-            _clear      { ((PTA_Type *)iobase)->GPIOA_PCOR },
-            _toggle     { ((PTA_Type *)iobase)->GPIOA_PTOR },
-            _data       { ((PTA_Type *)iobase)->GPIOA_PDOR },
-            _direction  { ((PTA_Type *)iobase)->GPIOA_PDDR }
+        constexpr _GPIO(volatile PT_regs &io,
+                        volatile PORT_regs &cfg,
+                        uint32_t index) :
+            _Pin(cfg, index),
+            _io { io }
         {}
 
     protected:
         static const bool           mode_output = true;
         static const bool           mode_input = false;
 
-        __IOM uint32_t  &_set;
-        __IOM uint32_t  &_clear;
-        __IOM uint32_t  &_toggle;
-        __IOM uint32_t  &_data;
-        __IOM uint32_t  &_direction;
+        volatile PT_regs    &_io;
 
         void configure(bool mode)
         {
             if (mode == mode_output) {
-                _direction |= _mask;
+                _io.PDDR |= _mask;
             } else {
-                _direction &= ~_mask;
+                _io.PDDR &= ~_mask;
             }
             _Pin::configure(func_gpio); 
         }
@@ -115,19 +92,19 @@ namespace Pins
     class GPIOOut : public _GPIO
     {
     public:
-        constexpr GPIOOut(__IO void *iobase,
-                          __IO void *cfgbase,
-                          uint8_t index,
+        constexpr GPIOOut(volatile PT_regs &io,
+                          volatile PORT_regs &cfg,
+                          uint32_t index,
                           bool initial=false) :
-            _GPIO(iobase, cfgbase, index),
+            _GPIO(io, cfg, index),
             _initial { initial }
         {}
 
-        void set(void)              volatile { _set = _mask; }
+        void set(void)              volatile { _io.PSOR = _mask; }
         void set(bool v)            volatile { if (v) set(); else clear(); }
-        void clear(void)            volatile { _clear = _mask; }
-        void toggle(void)           volatile { _toggle = _mask; }
-        bool get(void)              volatile { return _data & _mask; }
+        void clear(void)            volatile { _io.PCOR = _mask; }
+        void toggle(void)           volatile { _io.PTOR = _mask; }
+        bool get(void)              volatile { return _io.PDOR & _mask; }
         uint32_t mask(void)         volatile { return _mask; }
 
         void operator = (bool v)    volatile { set(v); }
@@ -146,13 +123,13 @@ namespace Pins
     class GPIOIn : public _GPIO
     {
     public:
-        constexpr GPIOIn(__IO void *iobase,
-                         __IO void *cfgbase,
-                         uint8_t index) :
-            _GPIO(iobase, cfgbase, index)
+        constexpr GPIOIn(volatile PT_regs &io,
+                         volatile PORT_regs &cfg,
+                         uint32_t index) :
+            _GPIO(io, cfg, index)
         {}
 
-        bool get(void)              volatile { return _data & _mask; }
+        bool get(void)              volatile { return _io.PDIR & _mask; }
         bool operator()(void)       volatile { return get(); }
         void configure()            { _GPIO::configure(mode_input); }
     };
@@ -160,9 +137,9 @@ namespace Pins
     class AnalogPin : public _Pin
     {
     public:
-        constexpr AnalogPin(__IO void *cfgbase,
-                            uint8_t index) :
-            _Pin(cfgbase, index)
+        constexpr AnalogPin(volatile PORT_regs &cfg,
+                            uint32_t index) :
+            _Pin(cfg, index)
         {}
 
         void configure(void)        { _Pin::configure(func_analog); }
@@ -171,10 +148,10 @@ namespace Pins
     class PeripheralPin : public _Pin
     {
     public:
-        constexpr PeripheralPin(__IO void *cfgbase,
-                                uint8_t index,
+        constexpr PeripheralPin(volatile PORT_regs &cfg,
+                                uint32_t index,
                                 uint8_t function) :
-            _Pin(cfgbase, index),
+            _Pin(cfg, index),
             _function               { function }
         {}
 
@@ -187,15 +164,15 @@ namespace Pins
     class InputPin : public _Pin
     {
     public:
-        constexpr InputPin(__IO void *iobase,
-                           __IO void *cfgbase,
-                           uint8_t index,
+        constexpr InputPin(volatile PT_regs &io,
+                           volatile PORT_regs &cfg,
+                           uint32_t index,
                            // XXX ADC channel?
-                           ::ExpanderPins::Pin pull_up,
-                           ::ExpanderPins::Pin pull_down,
+                           const ExpanderPin &pull_up,
+                           const ExpanderPin &pull_down,
                            GPIOOut range_select) :
-            _Pin(cfgbase, index),
-            _gpio { iobase, cfgbase, index },
+            _Pin(cfg, index),
+            _gpio { io, cfg, index },
             _pu { pull_up },
             _pd { pull_down },
             _rs { range_select }
@@ -215,8 +192,8 @@ namespace Pins
 
     private:
         GPIOIn              _gpio;
-        ::ExpanderPins::Pin &_pu;
-        ::ExpanderPins::Pin &_pd;
+        const ExpanderPin   &_pu;
+        const ExpanderPin   &_pd;
         GPIOOut             &_rs;
     };
 
@@ -345,8 +322,6 @@ namespace Pins
 #define CAN_STB2        ::Pins::GPIOOut(PTE, PORTE, ::Pins::PortE::_CAN_STB2, 1)
 #define CAN_WAKE1       ::Pins::GPIOOut(PTA, PORTA, ::Pins::PortA::_CAN_WAKE1, 1)
 #define CAN_WAKE2       ::Pins::GPIOOut(PTE, PORTE, ::Pins::PortE::_CAN_WAKE2, 1)
-#define DCDC_8V5        ::ExpanderPins::Pin(::ExpanderPins::PortX::DCDC_8V5)
-#define DCDC_10V        ::ExpanderPins::Pin(::ExpanderPins::PortX::DCDC_10V)
 #define DI_KL15         ::Pins::GPIOIn(PTD, PORTD, ::Pins::PortD::_DI_KL15)
 #define DI_PGD          ::Pins::GPIOIn(PTA, PORTA, ::Pins::PortA::_DI_PGD)
 #define DO_CS_HSD1      ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_CS_HSD1, 1)
@@ -365,18 +340,6 @@ namespace Pins
 #define DO_SHIFT_ST_CP  ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_SHIFT_ST_CP)
 #define DO_VREF_EN      ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_VREF_EN)
 #define LIN_EN          ::Pins::GPIOOut(PTE, PORTE, ::Pins::PortE::_LIN_EN)
-#define PD_A_IN5        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PD_A_IN5)
-#define PD_A_IN4        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PD_A_IN4)
-#define PD_A_IN3        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PD_A_IN3)
-#define PD_A_IN2        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PD_A_IN2)
-#define PD_A_IN1        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PD_A_IN1)
-#define PD_A_IN0        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PD_A_IN0)
-#define PU_A_IN5        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PU_A_IN5)
-#define PU_A_IN4        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PU_A_IN4)
-#define PU_A_IN3        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PU_A_IN3)
-#define PU_A_IN2        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PU_A_IN2)
-#define PU_A_IN1        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PU_A_IN1)
-#define PU_A_IN0        ::ExpanderPins::Pin(::ExpanderPins::PortX::_PU_A_IN0)
 
 //
 // Peripheral and unused pins not requiring other setup.
