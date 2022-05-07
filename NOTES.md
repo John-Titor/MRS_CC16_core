@@ -359,9 +359,13 @@ DO_HSD2_OUT6            D_09        HSD2 INPUT3
 DO_HSD2_OUT7            D_16        HSD2 INPUT4
 DO_CS_HSD1              D_17 (1)    HSD1 CS_DIS
 DO_CS_HSD2              D_11 (1)    HSD2 CS_DIS
+DI_AI_ID                C_07 (2)    3.3V digital output
 
 (1) At most one of DO_CS_HSDx should be set low at a time to select
     either HSD1 or HSD2 OUTPUT CURRENTx sensing on DI_AI_SNSx.
+
+(2) DI_AI_ID may be configured as a high-impedance output pin. It is
+    heavily filtered, so it cannot be used as e.g. a UART output.
 
 #### Feedback signals
 

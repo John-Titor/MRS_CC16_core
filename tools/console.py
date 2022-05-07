@@ -26,6 +26,11 @@ if __name__ == '__main__':
     from interface import Interface
 
     parser = argparse.ArgumentParser(description='CC16_core console logger')
+    parser.add_argument('--interface-name',
+                        type=str,
+                        metavar='INTERFACE',
+                        default='anagate',
+                        help='name of the interface as known to python-can')
     parser.add_argument('--interface-channel',
                         type=str,
                         metavar='CHANNEL',

@@ -4,6 +4,7 @@
 
 #include <CMSIS/S32K144.h>
 
+#include "can.h"
 #include "pins.h"
 #include "pwm.h"
 #include "watchdog.h"
@@ -17,7 +18,7 @@ die(int count) {
             DO_HSD1_OUT0.set();
             for (volatile int x = 0; x < 1000000; x++) {}
             DO_HSD1_OUT0.clear();
-            for (volatile int x = 0; x < 1000000; x++) {}           
+            for (volatile int x = 0; x < 1000000; x++) {}
         }
         for (volatile int x = 0; x < 5000000; x++) {}
     }
@@ -52,6 +53,15 @@ main(void)
     // UART (if appropriate)
     // LIN (if appropriate)
 
+    CAN0.configure(CAN::RATE_500K);
+    CAN::Frame f = {
+        .id_ext = 0x1ffffffe,
+        .dlc = 6,
+        .ide = 1,
+        .data = { 'h', 'e', 'l', 'l', 'o', 0, 0, 0 }
+    };
+    CAN0.send(f);
+
     /* run one-time app startup code */
     app_init();
 
@@ -71,101 +81,98 @@ clock_setup(void)
     // clock tree, so we can leave it alone.
 
     // GPIO clocks on
-    PCC.PCC_PORTB = PCC_PCC_PORTB_CGC;
-    PCC.PCC_PORTC = PCC_PCC_PORTB_CGC;
-    PCC.PCC_PORTD = PCC_PCC_PORTB_CGC;
+    PCC_regs.PCC_PORTB = PCC_PCC_PORTB_CGC;
+    PCC_regs.PCC_PORTC = PCC_PCC_PORTB_CGC;
+    PCC_regs.PCC_PORTD = PCC_PCC_PORTB_CGC;
 
-    // FTM0-2 on, running from SPLL_DIV1
-    PCC.PCC_FTM0 = PCC_PCC_FTM0_CGC | PCC_PCC_FTM0_PCS(1);
-    PCC.PCC_FTM1 = PCC_PCC_FTM1_CGC | PCC_PCC_FTM1_PCS(1);
-    PCC.PCC_FTM2 = PCC_PCC_FTM2_CGC | PCC_PCC_FTM2_PCS(1);
 }
 
 void
 pin_setup(void)
 {
-    CAN_EN1.configure();
-    CAN_EN2.configure();
-    CAN_ERR1.configure();
-    CAN_ERR2.configure();
-    CAN_STB1.configure();
-    CAN_STB2.configure();
-    CAN_WAKE1.configure();
-    CAN_WAKE2.configure();
-    DI_AI_A_IN0.configure();
-    DI_AI_A_IN1.configure();
-    DI_AI_A_IN2.configure();
-    DI_AI_A_IN3.configure();
-    DI_AI_A_IN4.configure();
-    DI_AI_A_IN5.configure();
-    DI_AI_ID.configure();
-    DI_AI_INA_OUT0.configure();
-    DI_AI_INA_OUT1.configure();
-    DI_AI_INA_OUT2.configure();
-    DI_AI_INA_OUT3.configure();
-    DI_AI_INA_OUT4.configure();
-    DI_AI_INA_OUT5.configure();
-    DI_AI_INA_OUT6.configure();
-    DI_AI_INA_OUT7.configure();
-    DI_AI_KL30_1.configure();
-    DI_AI_KL30_2.configure();
-    DI_AI_OUT0.configure();
-    DI_AI_OUT1.configure();
-    DI_AI_OUT2.configure();
-    DI_AI_OUT3.configure();
-    DI_AI_OUT4.configure();
-    DI_AI_OUT5.configure();
-    DI_AI_OUT6.configure();
-    DI_AI_OUT7.configure();
-    DI_AI_SNS1.configure();
-    DI_AI_SNS2.configure();
-    DI_AI_SNS3.configure();
-    DI_AI_SNS4.configure();
-    DI_AI_VARIANTE.configure();
-    DI_AI_VREF.configure();
-    DI_INTERFACE2_A.configure();
-    DI_INTERFACE2_B.configure();
-    DI_KL15.configure();
-    DI_PGD.configure();
-    DO_CS_HSD1.configure();
-    DO_CS_HSD2.configure();
+    //CAN_EN1.configure();
+    //CAN_EN2.configure();
+    //CAN_ERR1.configure();
+    //CAN_ERR2.configure();
+    //CAN_STB1.configure();
+    //CAN_STB2.configure();
+    //CAN_WAKE1.configure();
+    //CAN_WAKE2.configure();
+    //DI_AI_A_IN0.configure();
+    //DI_AI_A_IN1.configure();
+    //DI_AI_A_IN2.configure();
+    //DI_AI_A_IN3.configure();
+    //DI_AI_A_IN4.configure();
+    //DI_AI_A_IN5.configure();
+    //DI_AI_ID.configure();
+    //DI_AI_INA_OUT0.configure();
+    //DI_AI_INA_OUT1.configure();
+    //DI_AI_INA_OUT2.configure();
+    //DI_AI_INA_OUT3.configure();
+    //DI_AI_INA_OUT4.configure();
+    //DI_AI_INA_OUT5.configure();
+    //DI_AI_INA_OUT6.configure();
+    //DI_AI_INA_OUT7.configure();
+    //DI_AI_KL30_1.configure();
+    //DI_AI_KL30_2.configure();
+    //DI_AI_OUT0.configure();
+    //DI_AI_OUT1.configure();
+    //DI_AI_OUT2.configure();
+    //DI_AI_OUT3.configure();
+    //DI_AI_OUT4.configure();
+    //DI_AI_OUT5.configure();
+    //DI_AI_OUT6.configure();
+    //DI_AI_OUT7.configure();
+    //DI_AI_SNS1.configure();
+    //DI_AI_SNS2.configure();
+    //DI_AI_SNS3.configure();
+    //DI_AI_SNS4.configure();
+    //DI_AI_VARIANTE.configure();
+    //DI_AI_VREF.configure();
+    //DI_INTERFACE2_A.configure();
+    //DI_INTERFACE2_B.configure();
+    //DI_KL15.configure();
+    //DI_PGD.configure();
+    //DO_CS_HSD1.configure();
+    //DO_CS_HSD2.configure();
     DO_HSD1_OUT0.configure();
-    DO_HSD1_OUT1.configure();
-    DO_HSD1_OUT2.configure();
-    DO_HSD1_OUT3.configure();
-    DO_HSD2_OUT4.configure();
-    DO_HSD2_OUT5.configure();
-    DO_HSD2_OUT6.configure();
-    DO_HSD2_OUT7.configure();
+    //DO_HSD1_OUT1.configure();
+    //DO_HSD1_OUT2.configure();
+    //DO_HSD1_OUT3.configure();
+    //DO_HSD2_OUT4.configure();
+    //DO_HSD2_OUT5.configure();
+    //DO_HSD2_OUT6.configure();
+    //DO_HSD2_OUT7.configure();
     DO_POWER.configure();
-    DO_RS0.configure();
-    DO_RS1.configure();
-    DO_RS2.configure();
-    DO_RS3.configure();
-    DO_RS4.configure();
-    DO_RS5.configure();
-    DO_SHIFT_IN_DS.configure();
-    DO_SHIFT_MR.configure();
-    DO_SHIFT_OE.configure();
-    DO_SHIFT_SH_CP.configure();
-    DO_SHIFT_ST_CP.configure();
-    DO_VREF_EN.configure();
-    LIN_EN.configure();
-    MC_CAN_RXD1.configure();
-    MC_CAN_RXD2.configure();
-    MC_CAN_TXD1.configure();
-    MC_CAN_TXD2.configure();
-    MC_FREQ_A_IN0.configure();
-    MC_FREQ_A_IN1.configure();
-    MC_FREQ_A_IN2.configure();
-    MC_FREQ_A_IN3.configure();
-    MC_FREQ_A_IN4.configure();
-    MC_FREQ_A_IN5.configure();
-    MC_SCI_RXD.configure();
-    MC_SCI_TXD.configure();
-    Pin74.configure();
-    Pin82.configure();
-    WD.configure();
+    DO_POWER = 1;
+    //DO_RS0.configure();
+    //DO_RS1.configure();
+    //DO_RS2.configure();
+    //DO_RS3.configure();
+    //DO_RS4.configure();
+    //DO_RS5.configure();
+    //DO_SHIFT_IN_DS.configure();
+    //DO_SHIFT_MR.configure();
+    //DO_SHIFT_OE.configure();
+    //DO_SHIFT_SH_CP.configure();
+    //DO_SHIFT_ST_CP.configure();
+    //DO_VREF_EN.configure();
+    //LIN_EN.configure();
+    //MC_CAN_RXD1.configure();
+    //MC_CAN_RXD2.configure();
+    //MC_CAN_TXD1.configure();
+    //MC_CAN_TXD2.configure();
+    //MC_FREQ_A_IN0.configure();
+    //MC_FREQ_A_IN1.configure();
+    //MC_FREQ_A_IN2.configure();
+    //MC_FREQ_A_IN3.configure();
+    //MC_FREQ_A_IN4.configure();
+    //MC_FREQ_A_IN5.configure();
+    //MC_SCI_RXD.configure();
+    //MC_SCI_TXD.configure();
+    //Pin74.configure();
+    //Pin82.configure();
+    //WD.configure();
 
     ExpanderPin::reset();
 }

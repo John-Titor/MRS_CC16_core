@@ -17,7 +17,7 @@ class ModuleError(Exception):
 class Interface(object):
     def __init__(self, args):
         self._power_on = False
-        self.bus = can.ThreadSafeBus(interface='anagate',
+        self.bus = can.ThreadSafeBus(interface=args.interface_name,
                                      channel=args.interface_channel,
                                      bitrate=args.bitrate * 1000)
         self.notifier = can.Notifier(self.bus, [])

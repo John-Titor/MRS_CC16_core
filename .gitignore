@@ -1,3 +1,4 @@
 libs/SDK/S32SDK
 obj
 .DS_Store
+*.sublime-workspace

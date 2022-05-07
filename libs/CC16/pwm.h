@@ -5,14 +5,14 @@
 #include "pins.h"
 
 #if 1
-#define DO_HSD1_OUT0    ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_HSD1_OUT0, 1)
-#define DO_HSD1_OUT1    ::Pins::GPIOOut(PTB, PORTB, ::Pins::PortB::_DO_HSD1_OUT1, 0)
-#define DO_HSD1_OUT2    ::Pins::GPIOOut(PTE, PORTE, ::Pins::PortE::_DO_HSD1_OUT2, 0)
-#define DO_HSD1_OUT3    ::Pins::GPIOOut(PTB, PORTB, ::Pins::PortB::_DO_HSD1_OUT3, 0)
-#define DO_HSD2_OUT4    ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_HSD2_OUT4, 0)
-#define DO_HSD2_OUT5    ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_HSD2_OUT5, 0)
-#define DO_HSD2_OUT6    ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_HSD2_OUT6, 0)
-#define DO_HSD2_OUT7    ::Pins::GPIOOut(PTD, PORTD, ::Pins::PortD::_DO_HSD2_OUT7, 0)
+#define DO_HSD1_OUT0    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD1_OUT0, 1)
+#define DO_HSD1_OUT1    ::GPIOOut(PTB_regs, PORTB_regs, ::_Pin::PortB_DO_HSD1_OUT1, 0)
+#define DO_HSD1_OUT2    ::GPIOOut(PTE_regs, PORTE_regs, ::_Pin::PortE_DO_HSD1_OUT2, 0)
+#define DO_HSD1_OUT3    ::GPIOOut(PTB_regs, PORTB_regs, ::_Pin::PortB_DO_HSD1_OUT3, 0)
+#define DO_HSD2_OUT4    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT4, 0)
+#define DO_HSD2_OUT5    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT5, 0)
+#define DO_HSD2_OUT6    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT6, 0)
+#define DO_HSD2_OUT7    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT7, 0)
 #else
 
 namespace PWM
@@ -26,6 +26,11 @@ namespace PWM
 
         void configure()
         {
+            // FTM0-2 on, running from SPLL_DIV1
+            PCC.PCC_FTM0 = PCC_PCC_FTM0_CGC | PCC_PCC_FTM0_PCS(1);
+            PCC.PCC_FTM1 = PCC_PCC_FTM1_CGC | PCC_PCC_FTM1_PCS(1);
+            PCC.PCC_FTM2 = PCC_PCC_FTM2_CGC | PCC_PCC_FTM2_PCS(1);
+
             _reg.FTM0_SC = 0x00ff0007;  // set CLKS=0, /128 prescale, all outputs
             _reg.FTM0_MODE = 0x04;      // set WPDIS
             _reg.FTM0_POL = 0;          // all natural polarity
@@ -119,13 +124,13 @@ namespace PWM
     }
 } // namespace PWM
 
-#define DO_HSD1_OUT0    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD1_OUT0, 2, ::PWM::_FTM(FTM2), 5)
-#define DO_HSD1_OUT1    ::PWM::Pin(PORTB, ::Pins::PortB::_DO_HSD1_OUT1, 2, ::PWM::_FTM(FTM0), 4)
-#define DO_HSD1_OUT2    ::PWM::Pin(PORTE, ::Pins::PortE::_DO_HSD1_OUT2, 2, ::PWM::_FTM(FTM0), 6)
-#define DO_HSD1_OUT3    ::PWM::Pin(PORTB, ::Pins::PortB::_DO_HSD1_OUT3, 2, ::PWM::_FTM(FTM0), 5)
-#define DO_HSD2_OUT4    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT4, 2, ::PWM::_FTM(FTM2), 3)
-#define DO_HSD2_OUT5    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT5, 2, ::PWM::_FTM(FTM2), 2)
-#define DO_HSD2_OUT6    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT6, 6, ::PWM::_FTM(FTM1), 5)
-#define DO_HSD2_OUT7    ::PWM::Pin(PORTD, ::Pins::PortD::_DO_HSD2_OUT7, 2, ::PWM::_FTM(FTM0), 1)
+#define DO_HSD1_OUT0    ::PWM::Pin(PORTD, ::_Pin::PortD_DO_HSD1_OUT0, 2, ::PWM::_FTM(FTM2), 5)
+#define DO_HSD1_OUT1    ::PWM::Pin(PORTB, ::_Pin::PortB_DO_HSD1_OUT1, 2, ::PWM::_FTM(FTM0), 4)
+#define DO_HSD1_OUT2    ::PWM::Pin(PORTE, ::_Pin::PortE_DO_HSD1_OUT2, 2, ::PWM::_FTM(FTM0), 6)
+#define DO_HSD1_OUT3    ::PWM::Pin(PORTB, ::_Pin::PortB_DO_HSD1_OUT3, 2, ::PWM::_FTM(FTM0), 5)
+#define DO_HSD2_OUT4    ::PWM::Pin(PORTD, ::_Pin::PortD_DO_HSD2_OUT4, 2, ::PWM::_FTM(FTM2), 3)
+#define DO_HSD2_OUT5    ::PWM::Pin(PORTD, ::_Pin::PortD_DO_HSD2_OUT5, 2, ::PWM::_FTM(FTM2), 2)
+#define DO_HSD2_OUT6    ::PWM::Pin(PORTD, ::_Pin::PortD_DO_HSD2_OUT6, 6, ::PWM::_FTM(FTM1), 5)
+#define DO_HSD2_OUT7    ::PWM::Pin(PORTD, ::_Pin::PortD_DO_HSD2_OUT7, 2, ::PWM::_FTM(FTM0), 1)
 
 #endif // if 1

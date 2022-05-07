@@ -59,13 +59,12 @@ class Register:
                         cast = f"(uint{self.size}_t)"
                         mask = ((1 << f.bit_width) - 1)
                         mask_in_place = mask << f.bit_offset
+                        text += sline("", f.description)
                         if not self._read_only:
                             valname = f"{name}(_n)"
-                            text += sline(f"#define {valname:40} ({cast}(_n) << {f.bit_offset})", f.description)
+                            text += sline(f"#define {valname:40} (({cast}(_n) & {mask:#x}) << {f.bit_offset})")
                             defname = f"{name}_INSERT(_v, _n)"
                             text += sline(f"#define {defname:44} (((_v) & ~{mask_in_place:#x}) | ({cast}(_n) & {mask:#x}) << {f.bit_offset})")
-                        else:
-                            text += sline("", f.description)
                         if not self._write_only:
                             defname = f"{name}_EXTRACT(_v)"
                             text += sline(f"#define {defname:44} (((_v) >> {f.bit_offset}) & {mask:#x})")
@@ -123,7 +122,8 @@ class Peripheral:
     def gen_pointers(cls, args):
         text = ""
         for p in cls._index.values():
-            text += f"static auto &{p.name:12} = *(volatile {p._type_name}_regs *){p.base_address:#x};\n"
+            instname = f"{p.name}_regs"
+            text += f"static auto &{instname:16} = *reinterpret_cast<volatile {p._type_name}_regs_t *>({p.base_address:#x});\n"
         return text
 
     @classmethod
@@ -137,7 +137,7 @@ class Peripheral:
     def gen_struct(self, args):
         text = sline("", "--------------------")
         text += sline("", self.description)
-        text += sline(f"struct {self._name_fixup(self.name)}_regs", "--------------------")
+        text += sline(f"struct {self._name_fixup(self.name)}_regs_t", "--------------------")
         text += sline("{")
         res_reg_counter = 0
         reg_offset = 0
@@ -234,11 +234,10 @@ typedef enum {
 
 
 def should_enable(name, args):
-    if args.disable is not None:
-        for pat in args.disable:
-            if re.match(pat, name) is not None:
-                return False
-    if args.enable is None:
+    for pat in args.disable:
+        if re.match(pat, name) is not None:
+            return False
+    if len(args.enable) == 0:
         return True
     for pat in args.enable:
         if re.match(pat, name) is not None:
