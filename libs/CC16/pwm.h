@@ -5,14 +5,14 @@
 #include "pins.h"
 
 #if 1
-#define DO_HSD1_OUT0    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD1_OUT0, 1)
-#define DO_HSD1_OUT1    ::GPIOOut(PTB_regs, PORTB_regs, ::_Pin::PortB_DO_HSD1_OUT1, 0)
-#define DO_HSD1_OUT2    ::GPIOOut(PTE_regs, PORTE_regs, ::_Pin::PortE_DO_HSD1_OUT2, 0)
-#define DO_HSD1_OUT3    ::GPIOOut(PTB_regs, PORTB_regs, ::_Pin::PortB_DO_HSD1_OUT3, 0)
-#define DO_HSD2_OUT4    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT4, 0)
-#define DO_HSD2_OUT5    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT5, 0)
-#define DO_HSD2_OUT6    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT6, 0)
-#define DO_HSD2_OUT7    ::GPIOOut(PTD_regs, PORTD_regs, ::_Pin::PortD_DO_HSD2_OUT7, 0)
+static const Pin DO_HSD1_OUT0   { .port = Pin::PortD, .index = 14, .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD1_OUT1   { .port = Pin::PortB, .index = 4,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD1_OUT2   { .port = Pin::PortE, .index = 8,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD1_OUT3   { .port = Pin::PortB, .index = 5,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT4   { .port = Pin::PortD, .index = 5,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT5   { .port = Pin::PortD, .index = 12, .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT6   { .port = Pin::PortD, .index = 9,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT7   { .port = Pin::PortD, .index = 16, .mux = Pin::GPIO, .direction = Pin::OUT };
 #else
 
 namespace PWM

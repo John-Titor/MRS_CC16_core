@@ -2,13 +2,21 @@
 //
 
 #include <CMSIS/S32K144.h>
+#include "pins.h"
 
 class CAN
 {
 public:
-    CAN(volatile CAN_regs_t &regs) :
+    CAN(volatile CAN_regs_t &regs,
+        Pin en_gpio,
+        Pin stb_gpio,
+        Pin wake_gpio,
+        Pin err_gpio) :
         _reg   { regs },
-        _rxBuf { *reinterpret_cast<volatile RxBuf *>(&_reg.RAMn0)}
+        _en { en_gpio },
+        _stb { stb_gpio },
+        _wake { wake_gpio },
+        _err { err_gpio }
     {}
 
     enum Rate {
@@ -121,9 +129,13 @@ private:
     };
 
     volatile CAN_regs_t     &_reg;
-    const volatile RxBuf    &_rxBuf;
     volatile TxBuf          &_txBuf(unsigned index);
+
+    const Pin               _en;
+    const Pin               _stb;
+    const Pin               _wake;
+    const Pin               _err;
 };
 
-
-extern CAN CAN0;
+extern CAN CAN1;
+extern CAN CAN2;

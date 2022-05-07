@@ -23,6 +23,12 @@ CAN::configure(Rate rate)
 		rate = RATE_500K;
 	}
 
+	// configure GPIOs
+	_en.configure();
+	_stb.configure();
+	_wake.configure();
+	_err.configure();
+
     // CAN clocks on
     PCC_regs.PCC_FlexCAN0 = PCC_PCC_FlexCAN0_CGC;
     PCC_regs.PCC_FlexCAN1 = PCC_PCC_FlexCAN1_CGC;
@@ -111,4 +117,14 @@ CAN::_txBuf(unsigned index)
 	return *reinterpret_cast<volatile TxBuf *>(bp);
 }
 
-CAN CAN0(CAN0_regs);
+static const Pin CAN_EN1  	{ .port = Pin::PortA, .index = 11, .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+static const Pin CAN_EN2  	{ .port = Pin::PortE, .index = 12, .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+static const Pin CAN_ERR1 	{ .port = Pin::PortE, .index = 0,  .mux = Pin::GPIO, .direction = Pin::IN };
+static const Pin CAN_ERR2 	{ .port = Pin::PortE, .index = 12, .mux = Pin::GPIO, .direction = Pin::IN };
+static const Pin CAN_STB1 	{ .port = Pin::PortE, .index = 1,  .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+static const Pin CAN_STB2 	{ .port = Pin::PortE, .index = 3,  .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+static const Pin CAN_WAKE1	{ .port = Pin::PortA, .index = 14, .mux = Pin::GPIO, .direction = Pin::IN };
+static const Pin CAN_WAKE2	{ .port = Pin::PortE, .index = 14, .mux = Pin::GPIO, .direction = Pin::IN };
+
+CAN CAN1(CAN0_regs, CAN_EN1, CAN_STB1, CAN_WAKE1, CAN_ERR1);
+CAN CAN2(CAN1_regs, CAN_EN2, CAN_STB2, CAN_WAKE2, CAN_ERR2);
