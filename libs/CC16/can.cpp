@@ -10,16 +10,18 @@
 #include "can.h"
 #include "pins.h"
 
-static const Pin CAN_EN1    { .port = Pin::PortA, .index = 11, .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
-static const Pin CAN_EN2    { .port = Pin::PortE, .index = 12, .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
-static const Pin CAN_ERR1   { .port = Pin::PortE, .index = 0,  .mux = Pin::GPIO, .direction = Pin::IN };
-static const Pin CAN_ERR2   { .port = Pin::PortE, .index = 12, .mux = Pin::GPIO, .direction = Pin::IN };
-static const Pin CAN_STB1   { .port = Pin::PortE, .index = 1,  .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
-static const Pin CAN_STB2   { .port = Pin::PortE, .index = 3,  .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
-static const Pin CAN_WAKE1  { .port = Pin::PortA, .index = 14, .mux = Pin::GPIO, .direction = Pin::IN };
-static const Pin CAN_WAKE2  { .port = Pin::PortE, .index = 14, .mux = Pin::GPIO, .direction = Pin::IN };
+namespace CC16 {
+    const Pin CAN_EN1    { .port = Pin::PortA, .index = 11, .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+    const Pin CAN_EN2    { .port = Pin::PortE, .index = 12, .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+    const Pin CAN_ERR1   { .port = Pin::PortE, .index = 0,  .mux = Pin::GPIO, .direction = Pin::IN };
+    const Pin CAN_ERR2   { .port = Pin::PortE, .index = 12, .mux = Pin::GPIO, .direction = Pin::IN };
+    const Pin CAN_STB1   { .port = Pin::PortE, .index = 1,  .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+    const Pin CAN_STB2   { .port = Pin::PortE, .index = 3,  .mux = Pin::GPIO, .direction = Pin::OUT, .initial = 1 };
+    const Pin CAN_WAKE1  { .port = Pin::PortA, .index = 14, .mux = Pin::GPIO, .direction = Pin::IN };
+    const Pin CAN_WAKE2  { .port = Pin::PortE, .index = 14, .mux = Pin::GPIO, .direction = Pin::IN };
+} // namespace CC16
 
-namespace CAN
+namespace CC16::CAN
 {
     // Timing values calculated using http://www.bittiming.can-wiki.info and verified with 
     // S32 Design Studio. Wiki tool and S32DS swap EPROPSEG and EPSEG1; using the S32DS values here.
@@ -289,32 +291,36 @@ namespace CAN
 void
 CAN0_ORed_0_15_MB_Handler(void)
 {
-    CAN::rx_interrupt(CAN::CAN1);
+    CC16::CAN::rx_interrupt(CC16::CAN::CAN1);
 }
 
 void
 CAN1_ORed_0_15_MB_Handler(void)
 {
-    CAN::rx_interrupt(CAN::CAN2);
+    CC16::CAN::rx_interrupt(CC16::CAN::CAN2);
 }
 
-void
-cons_putc(char c)
+namespace CC16
 {
-    static CAN::Frame   f { {{.id_ext = 0x1ffffffe}}, .ide = 1 };
+    void
+    cons_putc(char c)
+    {
+        static CC16::CAN::Frame   f { {{.id_ext = 0x1ffffffe}}, .ide = 1 };
 
-    if (c == '\n') {
-        c = '\0';
+        if (c == '\n') {
+            c = '\0';
+        }
+        f.data[f.dlc++] = c;
+        if ((f.dlc == 8) || c == '\0') {
+            CC16::CAN::send_ordered(CC16::CAN::CAN1, f);
+            f.dlc = 0;
+        }
     }
-    f.data[f.dlc++] = c;
-    if ((f.dlc == 8) || c == '\0') {
-        CAN::send_ordered(CAN::CAN1, f);
-        f.dlc = 0;
-    }
-}
 
-int
-cons_getc()
-{
-    return -1;
-}
+    int
+    cons_getc()
+    {
+        return -1;
+    }
+
+} // namespace CC16

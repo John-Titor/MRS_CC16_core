@@ -1,18 +1,16 @@
 // Hardware watchdog timer
 //
 
-#pragma once
-
 #include <CMSIS/S32K144.h>
 
-namespace Watchdog
+namespace CC16::Watchdog
 {
     void reset(void)
     {
         WDOG_regs.CNT = 0xB480A602;          // reset
     }
     
- void disable(void)
+    void disable(void)
     {
         WDOG_regs.CNT = 0xD928C520;          // unlock
         (void)WDOG_regs.CNT;                 // force ordering

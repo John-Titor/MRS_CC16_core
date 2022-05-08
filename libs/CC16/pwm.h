@@ -1,5 +1,6 @@
 // PWM output using FlexTimer 0/1/2
 //
+#error this is broken
 
 #pragma once
 #include "pins.h"

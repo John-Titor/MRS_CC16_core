@@ -35,7 +35,7 @@ GLOBAL_DEPS		:=
 LIB_DEFINES		:=
 LIB_SRCS		:=
 LIB_INCLUDE_DIRS	:= $(ROOT_DIR)/libs
-LIBS			:= $(APP_LIBS) CC16 CMSIS crt ETL
+LIBS			:= $(APP_LIBS) CC16 CMSIS ETL
 LIB_DIRS		:= $(foreach lib,$(LIBS),$(ROOT_DIR)/libs/$(lib))
 LIB_MK_INCLUDES		:= $(foreach lib_dir,$(LIB_DIRS),$(lib_dir)/lib.mk)
 include $(LIB_MK_INCLUDES)

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace CAN
+namespace CC16::CAN
 {
     enum Port : uint8_t {
         CAN1,
@@ -44,4 +44,5 @@ namespace CAN
     void configure(Port port, Rate rate);
     void send_ordered(Port port, const Frame &msg);
     void send_async(Port port, const Frame &msg);
-}
+
+} // namespace CC16::CAN
