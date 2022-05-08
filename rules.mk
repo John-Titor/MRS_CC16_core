@@ -63,7 +63,6 @@ COMMON_FLAGS		:= $(ARCH_FLAGS) \
 			   $(addprefix -D,$(APP_DEFINES) $(LIB_DEFINES)) \
 			   $(INCLUDES) \
 			   -ffreestanding \
-			   -Os \
 			   -ffunction-sections \
 			   -fdata-sections \
 			   -funsigned-char \
@@ -74,8 +73,10 @@ COMMON_FLAGS		:= $(ARCH_FLAGS) \
 			   -Wdouble-promotion \
 			   -ffast-math \
 			   -fsingle-precision-constant \
-			   -flto \
+			   -O0 \
 			   -MMD
+
+#			   -flto \
 
 CFLAGS			:= $(COMMON_FLAGS) \
 			   -std=gnu2x \
@@ -98,7 +99,7 @@ LDFLAGS			:= $(COMMON_FLAGS) \
 			   -lgcc \
 			   -lm \
 			   -lc \
-			   --specs=nosys.specs \
+			   --specs=nano.specs \
 			   $(APP_LDFLAGS)
 
 BUILD_DIR		:= $(OBJ_DIR)/$(APP_NAME)

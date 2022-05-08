@@ -39,6 +39,7 @@ SECTIONS
         KEEP(*(.exception_vectors))
         KEEP(*(.interrupt_vectors))
     } > vector_table
+    __vector_table = ORIGIN(vector_table);
 
     __application_start = .;
     .flash_config :
