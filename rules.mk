@@ -35,7 +35,7 @@ GLOBAL_DEPS		:=
 LIB_DEFINES		:=
 LIB_SRCS		:=
 LIB_INCLUDE_DIRS	:= $(ROOT_DIR)/libs
-LIBS			:= $(APP_LIBS) crt CC16 CMSIS
+LIBS			:= $(APP_LIBS) CC16 CMSIS crt ETL
 LIB_DIRS		:= $(foreach lib,$(LIBS),$(ROOT_DIR)/libs/$(lib))
 LIB_MK_INCLUDES		:= $(foreach lib_dir,$(LIB_DIRS),$(lib_dir)/lib.mk)
 include $(LIB_MK_INCLUDES)
@@ -78,13 +78,14 @@ COMMON_FLAGS		:= $(ARCH_FLAGS) \
 			   -MMD
 
 CFLAGS			:= $(COMMON_FLAGS) \
-			   -std=gnu17 \
+			   -std=gnu2x \
 			   $(APP_CFLAGS)
 
 CXXFLAGS		:= $(COMMON_FLAGS) \
 			   -std=gnu++17 \
 			   -fno-exceptions \
 			   -fno-rtti \
+			   -fno-use-cxa-atexit \
 			   $(APP_CXXFLAGS)
 
 LDFLAGS			:= $(COMMON_FLAGS) \

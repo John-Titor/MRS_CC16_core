@@ -3,10 +3,13 @@ MRS CC16 core runtime:
 
   Unimplemented:
     ☐ CAN
-      ☐ basic message sending
-      ☐ console output
+      ✔ basic message sending @done (22-05-07 10:04)
+      ✔ console output @done (22-05-07 10:45)
       ☐ wakeup
     ☐ ADC
+      ☐ Read / use calibration curves
+      ☐ automated sampling
+      ☐ smoothing
     ☐ input pins
       ☐ pull up/down control
         code complete
@@ -16,14 +19,33 @@ MRS CC16 core runtime:
       ☐ voltage (AI_OUT*)
       ☐ current (AI_INA_*)
       ☐ driver sense (AI_SNS*)
+      ☐ error / fault handling
     ☐ supply monitoring
       ☐ KL30
+        ☐ inhibit outputs when supply missing?
       ☐ KL15
-    ☐ Vref output
+        ☐ sleep mode when KL15 low
+      ☐ Vref
+        ☐ qualify ADC outputs when reference out of spec?
+          implies some way for inputs to know they are dependent on Vref
     ☐ NVRAM
+    ☐ scripting
+      ☐ TinyScript
+      ☐ microvium
+      ☐ others? partcl? jim?
+
+  Test Harness:
+    ☐ wire up outputs
+    ☐ wire up inputs
+    ☐ monitoring
+    ☐ assertions
 
   Investigate:
-    ☐ AI_AI_INA_OUT* - what is this?
+    ✔ AI_AI_INA_OUT* - what is this? @done (22-05-07 10:04)
+      Sensed output current
+    ☐ Smaller libc - getting 1K "impure data" for reentrancy support
+    ☐ not booting - browning out? power-off should drain supply?
+    ☐ ETL - any application?
 
   Bugs:
    ☐ Fix PWM output <CC16/pwm.h>

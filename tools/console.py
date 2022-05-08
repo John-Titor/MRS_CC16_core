@@ -50,6 +50,12 @@ if __name__ == '__main__':
 
         print(f'Console @ {args.interface_channel}')
         while True:
-            time.sleep(1.0)
+            msg = input("> ")
+            payload = (msg + '\0').ascii()
+            while len(payload):
+                intf.send(can.Message(arbitration_id=0x1ffffffe,
+                                      extended_id=True,
+                                      data=payload[:8]))
+                payload = payload[8:]
     except KeyboardInterrupt:
         intf.set_power_off()

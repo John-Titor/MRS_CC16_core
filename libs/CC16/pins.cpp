@@ -1,6 +1,9 @@
 // Pin functionality.
 //
 
+#define NDEBUG
+#include <assert.h>
+
 #include "pins.h"
 
 uint16_t    Pin::_portX_state;
@@ -8,7 +11,23 @@ uint16_t    Pin::_portX_state;
 void
 Pin::configure(void) const 
 {
+    assert(port <= PortX);
+
     if (port <= PortE) {
+        assert(index < 18);
+        assert(mux < Function7);
+        assert((direction == OUT) != (mux != GPIO));
+        assert((initial == 1) != (mux != GPIO));
+
+        // port clock on
+        auto &pccr = port == PortA ? PCC_regs.PCC_PORTA :
+                     port == PortB ? PCC_regs.PCC_PORTB :
+                     port == PortC ? PCC_regs.PCC_PORTC :
+                     port == PortD ? PCC_regs.PCC_PORTD :
+                     PCC_regs.PCC_PORTE;
+        pccr = PCC_PCC_PORTA_CGC;
+
+        // select function
         auto mask = (uint32_t)1 << index;
         auto &cfg = port == PortA ? PORTA_regs :
                     port == PortB ? PORTB_regs :
@@ -20,6 +39,8 @@ Pin::configure(void) const
         } else {
             cfg.GPCHR = PORT_GPCHR_GPWE(mask >> 16) | PORT_GPCLR_GPWD(mux << 8);
         }
+
+        // select GPIO direction
         if (mux == GPIO) {
             auto &io = port == PortA ? PTA_regs :
                        port == PortB ? PTB_regs :
@@ -34,6 +55,8 @@ Pin::configure(void) const
             }
         }
     } else if (port == PortX) {
+        assert(index < 13);
+
         set(initial);
     }
 }
@@ -41,7 +64,13 @@ Pin::configure(void) const
 void
 Pin::set(bool v) const
 {
+    assert(port <= PortX);
+
     if (port <= PortE) {
+        assert(index < 18);
+        assert((mux == GPIO));
+        assert(direction == OUT);
+
         auto mask = (uint32_t)1 << index;
         auto &io = port == PortA ? PTA_regs :
                    port == PortB ? PTB_regs :
@@ -53,7 +82,9 @@ Pin::set(bool v) const
         } else {
             io.PCOR = mask;
         }
-    } else {
+    } else if (port == PortX) {
+        assert(index < 13);
+
         if (v) {
             _portX_state |= (uint16_t)1 << index;
         } else {
@@ -66,7 +97,13 @@ Pin::set(bool v) const
 bool
 Pin::get(void) const
 {
+    assert(port <= PortE);
+
     if (port <= PortE) {
+        assert(index < 18);
+        assert((mux == GPIO) || (mux == Analog));
+        assert(direction == IN);
+
         auto mask = (uint32_t)1 << index;
         auto &io = port == PortA ? PTA_regs :
                    port == PortB ? PTB_regs :

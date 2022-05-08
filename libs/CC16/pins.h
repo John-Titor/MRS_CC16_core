@@ -7,7 +7,7 @@
 
 struct Pin
 {
-    uint16_t    port:3;
+    const uint16_t  port:3;
     enum {
         PortA,
         PortB,
@@ -16,8 +16,8 @@ struct Pin
         PortE,
         PortX
     };
-    uint16_t    index:5;
-    uint16_t    mux:3;
+    const uint16_t  index:5;
+    const uint16_t  mux:3;
     enum {
         Analog,
         GPIO,
@@ -28,13 +28,13 @@ struct Pin
         Function6,
         Function7,
     };
-    uint16_t    direction:1;
+    const uint16_t  direction:1;
     enum {
         IN,
         OUT
     };
-    uint16_t    initial:1;
-    uint16_t    :3;
+    const uint16_t  initial:1;
+    const int16_t   :3;
 
     void        configure() const;
     void        set(bool v) const;
@@ -155,3 +155,17 @@ static const Pin DI_AI_A_IN5     { .port = Pin::PortB, .index = 15, .mux = Pin::
 static const Pin DI_AI_ID        { .port = Pin::PortC, .index = 7,  .mux = Pin::Analog };
 static const Pin DI_INTERFACE2_A { .port = Pin::PortD, .index = 7, .mux = Pin::GPIO, .direction = Pin::IN };
 static const Pin DI_INTERFACE2_B { .port = Pin::PortD, .index = 8, .mux = Pin::GPIO, .direction = Pin::IN };
+
+//
+// High-side driver output pins.
+//
+// TODO: these need PWM support
+//
+static const Pin DO_HSD1_OUT0   { .port = Pin::PortD, .index = 14, .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD1_OUT1   { .port = Pin::PortB, .index = 4,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD1_OUT2   { .port = Pin::PortE, .index = 8,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD1_OUT3   { .port = Pin::PortB, .index = 5,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT4   { .port = Pin::PortD, .index = 5,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT5   { .port = Pin::PortD, .index = 12, .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT6   { .port = Pin::PortD, .index = 9,  .mux = Pin::GPIO, .direction = Pin::OUT };
+static const Pin DO_HSD2_OUT7   { .port = Pin::PortD, .index = 16, .mux = Pin::GPIO, .direction = Pin::OUT };

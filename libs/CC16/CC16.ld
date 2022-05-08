@@ -78,6 +78,10 @@ SECTIONS
         __fini_array_end = .;
     } > application_flash
 
+    /*
+     * -> SRAM
+     */
+    . = ORIGIN(sram_h);
     .data ALIGN(4) :
     {
         __data_start = .;
@@ -91,10 +95,6 @@ SECTIONS
     __application_end = .;
     __application_size = __application_end - __application_start;
 
-    /*
-     * -> SRAM
-     */
-    . = ORIGIN(sram_h);
     .bss ALIGN(4) (NOLOAD) :
     {
         __bss_start = .;
@@ -107,6 +107,6 @@ SECTIONS
     } > sram_h
 
     . = ALIGN(4);
-    __heap_start = .;
+    _end = .;
     __stacktop = ORIGIN(sram_h) + LENGTH(sram_h);
 }

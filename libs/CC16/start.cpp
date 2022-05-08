@@ -2,11 +2,11 @@
  * Application framework.
  */
 
+#include <stdio.h>
 #include <CMSIS/S32K144.h>
 
 #include "can.h"
 #include "pins.h"
-#include "pwm.h"
 #include "watchdog.h"
 
 void
@@ -34,7 +34,6 @@ extern "C" void app_loop(void) __attribute__((weak, alias("_app_no_loop")));
 
 static void clock_setup(void);
 static void pin_setup(void);
-static void pwm_setup(void);
 
 void
 main(void)
@@ -44,8 +43,9 @@ main(void)
 
     /* do system hardware init */
     clock_setup();
+    DO_HSD1_OUT0.configure();
+    DO_HSD1_OUT0.set();
     pin_setup();
-    pwm_setup();
     // CAN
     // ADC
     // PWM
@@ -53,14 +53,10 @@ main(void)
     // UART (if appropriate)
     // LIN (if appropriate)
 
-    CAN1.configure(CAN::RATE_500K);
-    CAN::Frame f = {
-        .id_ext = 0x1ffffffe,
-        .dlc = 6,
-        .ide = 1,
-        .data = { 'h', 'e', 'l', 'l', 'o', 0, 0, 0 }
-    };
-    CAN1.send(f);
+    CAN::configure(CAN::CAN1, CAN::RATE_500K);
+    puts("testing");
+    puts("testing");
+    puts("this is a longer string to verify that we block correctly for ordering");
 
     /* run one-time app startup code */
     app_init();
@@ -170,11 +166,4 @@ pin_setup(void)
     Pin82.configure();
     WD.configure();
 
-}
-
-
-void
-pwm_setup(void)
-{
-    //::PWM::configure();
 }
